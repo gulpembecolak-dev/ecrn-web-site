@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   Truck, 
@@ -8,7 +7,6 @@ import {
   MapPin, 
   ArrowRight, 
   CheckCircle2, 
-  Clock, 
   ShieldCheck,
   Facebook,
   Instagram,
