@@ -1,561 +1,556 @@
-import { motion } from 'framer-motion';
-import { 
-  Truck, 
-  Construction, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  ArrowRight, 
-  CheckCircle2, 
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
+import {
+  Construction,
+  Phone,
+  Mail,
+  MapPin,
+  ArrowRight,
+  CheckCircle2,
   ShieldCheck,
   Facebook,
   Instagram,
-  Linkedin
+  Linkedin,
+  Menu,
+  X,
+  Award,
+  ChevronDown,
+  Zap,
+  HardHat,
+  FileCheck,
 } from 'lucide-react';
 
-function App() {
+/* ============================================
+   PARTICLES COMPONENT
+   ============================================ */
+const Particles = ({ count = 20 }: { count?: number }) => {
+  const particles = Array.from({ length: count }, (_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    top: `${Math.random() * 100}%`,
+    delay: `${Math.random() * 6}s`,
+    duration: `${4 + Math.random() * 6}s`,
+    size: `${2 + Math.random() * 3}px`,
+  }));
+
   return (
-    <div className="min-h-screen">
-      {/* Header/Navbar */}
-      <nav className="fixed w-full z-50 bg-secondary/95 backdrop-blur-md border-b border-white/10 py-4 px-6 md:px-12 flex justify-between items-center text-white">
-        <div className="flex items-center gap-3">
-          <div className="relative flex flex-col items-center justify-center pt-2">
-            {/* Triangular Castle Logo - Ascending Left to Right */}
-            <div className="relative w-40 h-20 flex items-end justify-center">
-              {/* Main Logo Container with Triangle Clip */}
-              <div className="relative w-full h-16 overflow-hidden">
-                {/* Triangular Background Shape */}
-                <div 
-                  className="absolute bottom-4 left-0 w-full h-12 bg-secondary/10"
-                  style={{ 
-                    clipPath: 'polygon(0% 0%, 100% 70%, 100% 100%, 0% 100%)' 
-                  }}
-                >
-                  {/* Castle Main Body */}
-                  <div 
-                    className="absolute inset-0 bg-primary"
-                    style={{ 
-                      clipPath: 'polygon(0% 20%, 100% 75%, 100% 100%, 0% 100%)' 
-                    }}
-                  ></div>
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map(p => (
+        <div
+          key={p.id}
+          className="particle"
+          style={{
+            left: p.left,
+            top: p.top,
+            width: p.size,
+            height: p.size,
+            animationDelay: p.delay,
+            animationDuration: p.duration,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
-                  {/* Castle Crenellations (Burçlar) - Eight yellow spikes, stopping before the right end */}
-                  <div className="absolute top-0 left-0 w-[80%] h-4 flex justify-between px-1 pointer-events-none">
-                    {[0, 8, 16, 24, 32, 40, 48, 56].map((y, i) => (
-                      <div 
-                        key={i} 
-                        className="w-2.5 h-5 bg-primary rounded-t-sm shadow-sm" 
-                        style={{ transform: `translateY(${y}%)` }}
-                      ></div>
-                    ))}
-                  </div>
+/* ============================================
+   COUNTER ANIMATION HOOK
+   ============================================ */
+const useCounter = (end: number, duration: number = 2000, start: boolean = true) => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let startTime: number;
+    const step = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      setCount(Math.floor(progress * end));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [end, duration, start]);
+  return count;
+};
 
-                  {/* Road Path - Bottom Curve */}
-                  <div className="absolute bottom-0 left-0 w-full h-4 bg-white/90 flex items-center justify-center">
-                    <div className="w-full h-[1px] border-t border-dashed border-secondary/40"></div>
-                  </div>
+const StatCounter = ({ value, label, suffix = '' }: { value: number; label: string; suffix?: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  const count = useCounter(value, 2000, inView);
 
-                  {/* ECRN Text - Integrated into the shape */}
-                  <div className="absolute inset-0 flex items-center justify-center pl-4 pt-2">
-                    <span className="text-2xl font-black italic tracking-tighter text-secondary">Ecrn</span>
-                    <span className="text-[10px] font-bold text-secondary/70 mt-3 ml-1">bvba</span>
-                  </div>
-                </div>
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setInView(true); }, { threshold: 0.5 });
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className="text-center">
+      <h3 className="text-5xl font-black font-display text-primary glow-text mb-2">
+        {count}{suffix}
+      </h3>
+      <p className="text-gray-400 font-medium text-sm uppercase tracking-wider">{label}</p>
+    </div>
+  );
+};
+
+/* ============================================
+   SECTION WRAPPER WITH SCROLL ANIMATION
+   ============================================ */
+const AnimatedSection = ({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: '-80px' }}
+    transition={{ duration: 0.7, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
+
+/* ============================================
+   WHATSAPP FLOATING BUTTON
+   ============================================ */
+const WhatsAppButton = () => {
+  return (
+    <a
+      href="https://wa.me/32489155316"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-2xl hover:shadow-green-500/50 transition-all hover:scale-110 active:scale-95"
+    >
+      <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+    </a>
+  );
+};
+
+/* ============================================
+   MAIN APP
+   ============================================ */
+function App() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const heroParallax = useTransform(scrollYProgress, [0, 1], [0, -150]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  const navLinks = [
+    { label: 'Anasayfa', href: '#home' },
+    { label: 'Hizmetler', href: '#services' },
+    { label: 'Fluvius Standartları', href: '#standards' },
+    { label: 'İletişim', href: '#contact' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-secondary overflow-x-hidden">
+      {/* ====== NAVBAR ====== */}
+      <nav className="fixed w-full z-50 glass py-3 px-6 md:px-12">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          {/* Logo */}
+          <a href="#home" className="flex items-center gap-3 group">
+            <div className="relative">
+              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
+                <Zap className="w-7 h-7 text-secondary" />
               </div>
-
-              {/* Flag Pole & Flag - On the highest point (Left) */}
-              <div className="absolute top-0 left-[2%] w-[1.5px] h-12 bg-white/90">
-                {/* Real Cloth Flag Effect - SMALLER SIZE */}
-                <motion.div 
-                  animate={{ 
-                    rotateY: [0, 25, 0],
-                    skewY: [-5, 5, -5],
-                    borderRadius: ["1px 6px 6px 1px", "1px 12px 12px 1px", "1px 6px 6px 1px"]
-                  }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute top-1 left-0 w-5 h-3 bg-primary origin-left shadow-lg overflow-hidden"
-                >
-                  {/* Fabric Folds/Shadows for realism */}
-                  <motion.div 
-                    animate={{ x: [-15, 15, -15] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-black/10 to-transparent w-[200%]"
-                  />
-                </motion.div>
-              </div>
-
-              {/* Tagline - Curved underneath */}
-              <div className="absolute bottom-0 w-full text-center">
-                <p className="text-[8px] font-bold uppercase tracking-[0.25em] text-primary leading-none">
-                  Nationaal & Internationaal Transport
-                </p>
-              </div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent-cyan rounded-full animate-pulse"></div>
             </div>
+            <div>
+              <span className="text-2xl font-black font-display text-white tracking-tight">ECRN</span>
+              <span className="text-[10px] text-primary font-bold ml-1">bvba</span>
+              <p className="text-[8px] text-gray-500 uppercase tracking-[0.2em] -mt-1">Vinç ve Kazı Hizmetleri</p>
+            </div>
+          </a>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-8">
+            {navLinks.map(link => (
+              <a key={link.href} href={link.href} className="text-gray-300 hover:text-primary transition-colors font-medium text-sm tracking-wide">
+                {link.label}
+              </a>
+            ))}
+            <a href="#contact" className="bg-primary hover:bg-primary-light text-secondary px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:shadow-lg hover:shadow-primary/20 active:scale-95">
+              Hemen Teklif Al
+            </a>
           </div>
-        </div>
-        
-        <div className="hidden md:flex gap-8 font-medium">
-          <a href="#home" className="hover:text-primary transition-colors">Ana Sayfa</a>
-          <a href="#services" className="hover:text-primary transition-colors">Hizmetlerimiz</a>
-          <a href="#about" className="hover:text-primary transition-colors">Hakkımızda</a>
-          <a href="#fleet" className="hover:text-primary transition-colors">Filomuz</a>
-          <a href="#contact" className="hover:text-primary transition-colors">İletişim</a>
+
+          {/* Mobile Menu Toggle */}
+          <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden text-white p-2">
+            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
 
-        <button className="bg-primary hover:bg-primary-dark text-secondary px-6 py-2 rounded-full font-bold transition-all transform hover:scale-105 active:scale-95">
-          Teklif Al
-        </button>
+        {/* Mobile Menu */}
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="md:hidden mt-4 pb-4 border-t border-white/5"
+          >
+            {navLinks.map(link => (
+              <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)} className="block py-3 px-4 text-gray-300 hover:text-primary transition-colors font-medium">
+                {link.label}
+              </a>
+            ))}
+            <a href="#contact" onClick={() => setMenuOpen(false)} className="block mt-2 mx-4 text-center bg-primary text-secondary px-6 py-3 rounded-xl font-bold">
+              Hemen Teklif Al
+            </a>
+          </motion.div>
+        )}
       </nav>
 
-      {/* Hero Section */}
-      <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden bg-gray-50">
-        {/* Animated Background Vehicles */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          {/* New Ultra-Detailed Animated Heavy Duty Crane Truck */}
-          <motion.div
-            initial={{ x: '-120%' }}
-            animate={{ x: '120vw' }}
-            transition={{ 
-              duration: 12, 
-              repeat: Infinity, 
-              ease: "linear" 
-            }}
-            className="absolute bottom-1/4 left-0 flex items-end opacity-30 drop-shadow-2xl"
-          >
-            <div className="relative flex items-end scale-125">
-              {/* Main Chassis */}
-              <div className="relative">
-                {/* Truck Front Cabin */}
-                <div className="relative bg-secondary w-32 h-24 rounded-tr-3xl rounded-tl-lg overflow-hidden">
-                  {/* Front Window */}
-                  <div className="absolute right-0 top-2 w-10 h-12 bg-sky-400/30 border-l-2 border-secondary/50"></div>
-                  {/* Side Window */}
-                  <div className="absolute left-4 top-2 w-14 h-10 bg-sky-400/20 rounded-sm"></div>
-                  {/* Door Handle */}
-                  <div className="absolute left-6 bottom-8 w-4 h-1 bg-primary/40"></div>
-                  {/* Front Grill */}
-                  <div className="absolute right-0 bottom-4 w-2 h-10 flex flex-col gap-1 px-0.5">
-                    {[1, 2, 3, 4].map(i => <div key={i} className="w-full h-1 bg-white/10"></div>)}
-                  </div>
-                  {/* Headlight with Beam */}
-                  <div className="absolute right-0 bottom-2 w-3 h-5 bg-primary rounded-l-full">
-                    <div className="absolute right-0 w-20 h-10 bg-primary/10 blur-xl -translate-y-2"></div>
-                  </div>
-                </div>
-
-                {/* Back Bed / Support */}
-                <div className="absolute left-[-160px] bottom-0 bg-secondary/90 w-40 h-12 rounded-tl-xl border-r-4 border-secondary">
-                  {/* Outriggers (Vertical Supports) */}
-                  <div className="absolute left-4 bottom-[-4px] w-4 h-6 bg-primary rounded-b-sm border-x border-secondary"></div>
-                  <div className="absolute right-4 bottom-[-4px] w-4 h-6 bg-primary rounded-b-sm border-x border-secondary"></div>
-                </div>
-
-                {/* Heavy Duty Crane Assembly */}
-                <div className="absolute left-[-140px] bottom-12">
-                  {/* Rotating Base */}
-                  <div className="w-20 h-8 bg-secondary rounded-t-2xl border-b-4 border-primary"></div>
-                  
-                  {/* Main Boom (First Section) */}
-                  <motion.div 
-                    animate={{ rotate: [15, 25, 15] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute bottom-6 left-8 w-6 h-48 bg-secondary origin-bottom border-x-2 border-white/5"
-                  >
-                    {/* Hydraulic Piston */}
-                    <div className="absolute bottom-4 left-[-12px] w-3 h-20 bg-primary/60 rounded-full origin-bottom rotate-[-10deg]"></div>
-                    
-                    {/* Second Boom Section (Telescopic) */}
-                    <motion.div 
-                      animate={{ y: [0, -20, 0] }}
-                      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute -top-40 left-1 w-4 h-48 bg-secondary/80 origin-bottom border-x border-white/10"
-                    >
-                      {/* Third Boom Section */}
-                      <div className="absolute -top-32 left-0.5 w-3 h-40 bg-secondary/60">
-                        {/* Pulley & Hook Line */}
-                        <div className="absolute top-0 right-[-4px] w-6 h-6 bg-primary rounded-full flex items-center justify-center border-2 border-secondary">
-                          <div className="w-2 h-2 bg-secondary rounded-full"></div>
-                        </div>
-                        {/* Hanging Cable */}
-                        <motion.div 
-                          animate={{ rotate: [-2, 2, -2] }}
-                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                          className="absolute top-4 right-[-1px] w-0.5 h-64 bg-secondary/40 origin-top"
-                        >
-                          {/* Heavy Hook */}
-                          <div className="absolute bottom-0 -left-3 w-7 h-8">
-                            <div className="w-6 h-6 border-4 border-t-0 border-secondary rounded-b-xl relative">
-                              <div className="absolute -top-2 left-1 w-2 h-2 bg-primary rounded-full"></div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                    
-                    {/* Main Pivot Joint */}
-                    <div className="absolute bottom-[-6px] left-[-6px] w-12 h-12 bg-primary rounded-full border-4 border-secondary flex items-center justify-center shadow-lg">
-                      <div className="w-4 h-4 bg-secondary rounded-full"></div>
-                    </div>
-                  </motion.div>
-                </div>
-
-                {/* 10-Wheel System (Detailed) */}
-                <div className="absolute left-[-150px] bottom-[-10px] flex gap-4">
-                  {[1, 2, 3, 4, 5].map((wheel) => (
-                    <motion.div 
-                      key={wheel}
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                      className="w-12 h-12 border-[5px] border-secondary rounded-full bg-white relative flex items-center justify-center shadow-md"
-                    >
-                      {/* Tire Tread Pattern */}
-                      <div className="absolute inset-0 border-[3px] border-dashed border-secondary/20 rounded-full"></div>
-                      {/* Hub */}
-                      <div className="w-4 h-4 bg-primary rounded-full border-2 border-secondary"></div>
-                      {/* Spokes */}
-                      <div className="absolute w-1 h-full bg-secondary/10"></div>
-                      <div className="absolute h-1 w-full bg-secondary/10"></div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Decorative Road Line */}
-          <div className="absolute bottom-1/4 w-full h-1 bg-gray-200"></div>
+      {/* ====== HERO SECTION ====== */}
+      <section id="home" ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img 
+            src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=2000" 
+            alt="Elektrik altyapı çalışması" 
+            className="w-full h-full object-cover opacity-30"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-secondary via-secondary/80 to-secondary"></div>
         </div>
 
-        <div className="relative z-10 text-center px-4 max-w-4xl">
+        {/* Grid Background */}
+        <div className="absolute inset-0 bg-grid opacity-60"></div>
+
+        {/* Radial Glow */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full opacity-20" style={{ background: 'radial-gradient(ellipse, rgba(245,166,35,0.15), transparent 70%)' }}></div>
+
+        {/* Particles */}
+        <Particles count={25} />
+
+        {/* Hero Content */}
+        <motion.div
+          style={{ y: heroParallax, opacity: heroOpacity }}
+          className="relative z-10 text-center px-4 max-w-5xl"
+        >
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.9, delay: 0.2 }}
           >
-            <h1 className="text-5xl md:text-7xl font-extrabold text-secondary mb-6 leading-tight">
-              Güçlü Çözümler, <span className="text-primary">Güvenli Taşımacılık</span>
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-5 py-2 mb-8 backdrop-blur-sm">
+              <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+              <span className="text-primary text-sm font-semibold tracking-wide">Fluvius Standartlarında</span>
+            </div>
+
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-display text-white mb-6 leading-[0.95]">
+              Vinç Hizmetleri
+              <br />
+              <span className="text-primary glow-text">ve Kazı Çözümleri</span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-2xl mx-auto">
-              Vinç kiralama ve kamyon taşıma işlerinizde profesyonel ekip ve modern filomuzla hizmetinizdeyiz.
+
+            <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+              Belçika genelinde profesyonel vinçle aydınlatma direği dikimi ve cadde/sokaklarda kablo kanalı açma hizmetleri.
             </p>
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="#services" className="bg-primary text-secondary px-8 py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-secondary hover:text-white transition-colors">
-                Hizmetlerimizi Keşfedin <ArrowRight className="w-5 h-5" />
+              <a href="#services" className="group bg-primary hover:bg-primary-light text-secondary px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all hover:shadow-xl hover:shadow-primary/20 active:scale-[0.98]">
+                Hizmetlerimizi Keşfedin
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
-              <a href="#contact" className="bg-secondary text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-primary hover:text-secondary transition-colors">
+              <a href="#contact" className="glass border border-white/10 hover:border-primary/30 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all hover:shadow-lg active:scale-[0.98]">
                 Bize Ulaşın
               </a>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
 
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-secondary/20 rounded-full flex justify-center pt-2">
-            <div className="w-1 h-2 bg-primary rounded-full"></div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats/Trust Bar */}
-      <section className="bg-primary py-12 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          {[
-            { label: 'Yıllık Deneyim', value: '15+' },
-            { label: 'Modern Araçlar', value: '50+' },
-            { label: 'Mutlu Müşteri', value: '1000+' },
-            { label: 'Güvenlik Puanı', value: '%100' },
-          ].map((stat, i) => (
-            <div key={i} className="text-center">
-              <h3 className="text-4xl font-bold text-secondary mb-1">{stat.value}</h3>
-              <p className="text-secondary/70 font-semibold">{stat.label}</p>
-            </div>
-          ))}
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="flex flex-col items-center gap-2"
+          >
+            <span className="text-gray-500 text-xs uppercase tracking-widest">Keşfet</span>
+            <ChevronDown className="w-5 h-5 text-primary" />
+          </motion.div>
         </div>
       </section>
 
-      {/* Services Section */}
-      <section id="services" className="py-24 px-6 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-secondary mb-4">Hizmetlerimiz</h2>
-            <div className="h-1.5 w-24 bg-primary mx-auto rounded-full"></div>
-            <p className="text-gray-600 mt-6 max-w-2xl mx-auto text-lg">
-              Ağır sanayi, inşaat ve lojistik alanlarında ihtiyacınız olan tüm kaldırma ve taşıma çözümlerini tek çatı altında sunuyoruz.
+      {/* ====== STATS BAR ====== */}
+      <section className="relative py-16 px-6 border-y border-white/5" style={{ background: 'linear-gradient(180deg, #0D1117, #0A0E1A)' }}>
+        <div className="absolute inset-0 bg-grid opacity-30"></div>
+        <div className="relative max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+          <StatCounter value={10} suffix="+" label="Yıllık Deneyim" />
+          <StatCounter value={100} suffix="%" label="Fluvius Uyumluluğu" />
+          <StatCounter value={500} suffix="+" label="Tamamlanan Proje" />
+          <StatCounter value={100} suffix="%" label="VCA Sertifikası" />
+        </div>
+      </section>
+
+      {/* ====== SERVICES ====== */}
+      <section id="services" className="py-28 px-6 relative">
+        <div className="absolute inset-0 bg-grid opacity-20"></div>
+        <Particles count={10} />
+
+        <div className="relative max-w-7xl mx-auto">
+          <AnimatedSection className="text-center mb-20">
+            <span className="text-primary font-bold text-sm uppercase tracking-[0.3em]">Hizmetlerimiz</span>
+            <h2 className="text-4xl md:text-5xl font-black font-display text-white mt-4 mb-6">
+              Profesyonel <span className="text-primary">Vinç ve Kazı</span> Hizmetleri
+            </h2>
+            <div className="h-1 w-20 bg-gradient-to-r from-primary to-primary-dark mx-auto rounded-full"></div>
+            <p className="text-gray-400 mt-8 max-w-2xl mx-auto text-lg leading-relaxed">
+              Sadece elektrik altyapısı için kadde ve sokak kazıları ve vinçli aydınlatma direği dikimi yapıyoruz.
             </p>
-          </div>
+          </AnimatedSection>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                title: 'Vinç Kiralama',
-                desc: '10 tondan 500 tona kadar kapasiteli, operatörlü sepetli ve mobil vinç hizmetleri.',
-                icon: <Construction className="w-8 h-8" />,
-                img: 'https://images.unsplash.com/photo-1591955506264-3f5a6834570a?auto=format&fit=crop&q=80&w=800'
+                title: 'Vinçli Direk Montajı',
+                desc: 'Yüksek kapasiteli vinçlerle güvenli aydınlatma direği dikimi ve montajı. Uzman operatör ekibi.',
+                icon: <Zap className="w-7 h-7" />,
+                img: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800',
+                gradient: 'from-blue-500/10 to-cyan-600/5',
               },
               {
-                title: 'Kamyon Taşımacılığı',
-                desc: 'Ağır vasıta, konteyner ve genel kargo taşımacılığında güvenilir lojistik ağ.',
-                icon: <Truck className="w-8 h-8" />,
-                img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=80&w=800'
+                title: 'Altyapı Kazı İşleri',
+                desc: 'Fluvius kurallarına uygun kablo kanalı açma ve zemin hazırlığı. Güvenli ve hassas kazı çalışmaları.',
+                icon: <Construction className="w-7 h-7" />,
+                img: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800',
+                gradient: 'from-amber-500/10 to-orange-600/5',
               },
               {
-                title: 'Özel Proje Taşımacılığı',
-                desc: 'Geniş ve ağır yüklerin planlanması, eskort eşliğinde güvenli transferi.',
-                icon: <ShieldCheck className="w-8 h-8" />,
-                img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=800'
-              }
+                title: 'Kanal Kapatma ve Restorasyon',
+                desc: 'Kablo döşeme sonrası dolgu ve zemin restorasyonu. Fluvius standartlarına uygun tamamlama.',
+                icon: <CheckCircle2 className="w-7 h-7" />,
+                img: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=800',
+                gradient: 'from-emerald-500/10 to-teal-600/5',
+              },
             ].map((service, i) => (
-              <motion.div 
-                key={i}
-                whileHover={{ y: -10 }}
-                className="bg-white rounded-3xl overflow-hidden shadow-xl shadow-gray-200/50 group"
-              >
-                <div className="h-48 overflow-hidden">
-                  <img src={service.img} alt={service.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                </div>
-                <div className="p-8">
-                  <div className="bg-primary/10 w-16 h-16 rounded-2xl flex items-center justify-center text-primary mb-6">
-                    {service.icon}
+              <AnimatedSection key={i} delay={i * 0.15}>
+                <div className="glass-card rounded-3xl overflow-hidden group cursor-pointer h-full">
+                  <div className="h-56 overflow-hidden relative">
+                    <img src={service.img} alt={service.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-secondary via-transparent to-transparent"></div>
+                    <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">{service.title}</h3>
-                  <p className="text-gray-600 mb-6 leading-relaxed">{service.desc}</p>
-                  <button className="text-secondary font-bold flex items-center gap-2 hover:text-primary transition-colors">
-                    Detaylı Bilgi <ArrowRight className="w-4 h-4" />
-                  </button>
+                  <div className="p-8">
+                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-secondary transition-all duration-300">
+                      {service.icon}
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors">{service.title}</h3>
+                    <p className="text-gray-400 leading-relaxed mb-6">{service.desc}</p>
+                    <button className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider group-hover:gap-4 transition-all">
+                      Detaylı Bilgi <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-              </motion.div>
+              </AnimatedSection>
             ))}
           </div>
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="py-24 px-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-          <div className="relative">
-            <div className="bg-primary absolute -top-10 -left-10 w-64 h-64 rounded-full blur-3xl opacity-20 animate-pulse"></div>
-            <img 
-              src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&q=80&w=1000" 
-              alt="Team" 
-              className="rounded-3xl relative z-10 shadow-2xl"
-            />
-            <div className="absolute -bottom-6 -right-6 bg-secondary text-white p-8 rounded-2xl z-20 shadow-xl border-l-4 border-primary">
-              <p className="text-4xl font-bold">15+</p>
-              <p className="text-gray-400">Yıllık Sektör Tecrübesi</p>
+      {/* ====== FLUVIUS STANDARDS ====== */}
+      <section id="standards" className="py-28 px-6 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0A0E1A, #0D1117, #0A0E1A)' }}>
+        <div className="absolute inset-0 bg-grid opacity-20"></div>
+        {/* Big glow */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full opacity-10" style={{ background: 'radial-gradient(circle, rgba(245,166,35,0.2), transparent 60%)' }}></div>
+
+        <div className="relative max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
+          <AnimatedSection>
+            <div className="relative">
+              <div className="absolute -top-8 -left-8 w-72 h-72 rounded-full blur-3xl opacity-15 bg-primary"></div>
+              <img
+                src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=1000"
+                alt="Fluvius standartları"
+                className="rounded-3xl relative z-10 shadow-2xl shadow-black/50 border border-white/5"
+              />
+              {/* Floating Badge */}
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="absolute -bottom-6 -right-6 glass rounded-2xl p-6 z-20 border border-primary/20 shadow-xl"
+              >
+                <p className="text-4xl font-black font-display text-primary glow-text">100%</p>
+                <p className="text-gray-400 text-sm font-medium">Fluvius Uyumlu</p>
+              </motion.div>
+              {/* Small floating element */}
+              <motion.div
+                animate={{ y: [0, 8, 0], rotate: [0, 5, 0] }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className="absolute top-4 -right-4 bg-primary rounded-xl p-3 z-20 shadow-lg shadow-primary/30"
+              >
+                <Award className="w-6 h-6 text-secondary" />
+              </motion.div>
             </div>
-          </div>
-          
-          <div>
-            <h2 className="text-4xl font-bold text-secondary mb-6">Neden ECRN'i Seçmelisiniz?</h2>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              ECRN olarak, ağır taşıma ve vinç hizmetlerinde güvenliği ve hızı bir araya getiriyoruz. Belçika ve çevresinde yürüttüğümüz projelerde müşteri memnuniyetini en üst düzeyde tutuyoruz.
+          </AnimatedSection>
+
+          <AnimatedSection delay={0.2}>
+            <span className="text-primary font-bold text-sm uppercase tracking-[0.3em]">Fluvius Standartları</span>
+            <h2 className="text-4xl md:text-5xl font-black font-display text-white mt-4 mb-8 leading-tight">
+              Neden <span className="text-primary">ECRN</span>'i Seçmelisiniz?
+            </h2>
+            <p className="text-lg text-gray-400 mb-10 leading-relaxed">
+              ECRN olarak, elektrik altyapı kazı ve montaj işlerinde VCA iş güvenliği sertifikası ve Fluvius teknik kabul süreçlerine %100 uyum sağlıyoruz.
             </p>
-            
-            <ul className="space-y-4">
+
+            <div className="space-y-5">
               {[
-                'Sertifikalı ve Deneyimli Operatörler',
-                '7/24 Teknik Destek ve Acil Servis',
-                'Düzenli Bakımlı ve Modern Makine Parkuru',
-                'Rekabetçi Fiyat ve Şeffaf Hizmet Politikası'
+                { icon: <ShieldCheck className="w-5 h-5" />, text: 'VCA İş Güvenliği Sertifikası' },
+                { icon: <FileCheck className="w-5 h-5" />, text: 'Fluvius Teknik Kabul Süreçlerine %100 Uyum' },
+                { icon: <HardHat className="w-5 h-5" />, text: 'Uzman ve Deneyimli Operatör Ekibi' },
+                { icon: <CheckCircle2 className="w-5 h-5" />, text: 'Güvenli ve Hassas Çalışma Prensipleri' },
               ].map((item, i) => (
-                <li key={i} className="flex items-center gap-4 text-gray-700 font-medium">
-                  <CheckCircle2 className="text-primary w-6 h-6 flex-shrink-0" />
-                  {item}
-                </li>
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 + i * 0.1 }}
+                  className="flex items-center gap-4 p-4 rounded-xl hover:bg-white/5 transition-colors group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-secondary transition-all flex-shrink-0">
+                    {item.icon}
+                  </div>
+                  <span className="text-gray-300 font-medium">{item.text}</span>
+                </motion.div>
               ))}
-            </ul>
-          </div>
+            </div>
+          </AnimatedSection>
         </div>
       </section>
 
-      {/* Fleet / Image Gallery */}
-      <section id="fleet" className="py-24 bg-secondary text-white px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-            <div>
-              <h2 className="text-4xl font-bold mb-4">Güçlü Filomuz</h2>
-              <p className="text-gray-400 max-w-xl">En zorlu işlerin üstesinden gelebilecek kapasitede, sürekli güncellenen modern araç parkımızla her zaman hazırız.</p>
-            </div>
-            <button className="bg-primary text-secondary px-8 py-3 rounded-xl font-bold hover:bg-white transition-colors">
-              Tüm Filoyu Gör
-            </button>
-          </div>
+      {/* ====== CONTACT ====== */}
+      <section id="contact" className="py-28 px-6 relative" style={{ background: 'linear-gradient(180deg, #0A0E1A, #0D1117)' }}>
+        <div className="absolute inset-0 bg-grid opacity-20"></div>
+        <Particles count={8} />
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-2 md:row-span-2 h-[500px] rounded-3xl overflow-hidden group relative">
-              <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=1200" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Endüstriyel Ağır Yük Vinci" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
-                <p className="text-xl font-bold">Ağır Yük Vinçleri</p>
-              </div>
-            </div>
-            <div className="h-[242px] rounded-3xl overflow-hidden group relative">
-              <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Taşıma Kamyonu" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <p className="font-bold">Kamyonlar</p>
-              </div>
-            </div>
-            <div className="h-[242px] rounded-3xl overflow-hidden group relative">
-              <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Lojistik Merkezi" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <p className="font-bold">Lojistik</p>
-              </div>
-            </div>
-            <div className="md:col-span-2 h-[242px] rounded-3xl overflow-hidden group relative">
-              <img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=1000" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Özel Proje Taşımacılığı" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <p className="font-bold">Özel Taşıma</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+        <div className="relative max-w-7xl mx-auto">
+          <AnimatedSection className="text-center mb-16">
+            <span className="text-primary font-bold text-sm uppercase tracking-[0.3em]">İletişim</span>
+            <h2 className="text-4xl md:text-5xl font-black font-display text-white mt-4 mb-6">
+              Bizimle <span className="text-primary">İletişime</span> Geçin
+            </h2>
+            <div className="h-1 w-20 bg-gradient-to-r from-primary to-primary-dark mx-auto rounded-full"></div>
+          </AnimatedSection>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-24 px-6 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row">
-            <div className="lg:w-1/2 p-12 md:p-20 bg-primary text-secondary">
-              <h2 className="text-4xl font-bold mb-8">İletişime Geçin</h2>
-              <p className="text-secondary/80 mb-12 text-lg">Hizmetlerimiz hakkında daha fazla bilgi almak veya teklif istemek için formumuzu doldurun ya da bizi arayın.</p>
-              
-              <div className="space-y-8">
-                <div className="flex items-center gap-6">
-                  <div className="bg-secondary text-primary p-4 rounded-2xl">
-                    <Phone className="w-6 h-6" />
+          <div className="glass rounded-[2rem] overflow-hidden border border-white/5 shadow-2xl shadow-black/20">
+            <div className="flex flex-col lg:flex-row">
+              {/* Contact Info Side */}
+              <div className="lg:w-5/12 p-10 md:p-16 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #F5A623, #D4891A)' }}>
+                {/* Decorative circles */}
+                <div className="absolute top-[-50px] right-[-50px] w-48 h-48 rounded-full bg-white/10"></div>
+                <div className="absolute bottom-[-30px] left-[-30px] w-36 h-36 rounded-full bg-white/5"></div>
+
+                <div className="relative z-10">
+                  <h3 className="text-3xl font-black font-display text-secondary mb-4">İletişim Bilgileri</h3>
+                  <p className="text-secondary/70 mb-12 leading-relaxed">Hizmetlerimiz hakkında bilgi almak veya teklif istemek için bize ulaşın.</p>
+
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-5">
+                      <div className="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                        <Phone className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-secondary/50 text-xs font-bold uppercase tracking-widest">Telefon</p>
+                        <p className="text-secondary text-lg font-bold">+32 (0) 489/15 53 16</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-5">
+                      <div className="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                        <Mail className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-secondary/50 text-xs font-bold uppercase tracking-widest">E-posta</p>
+                        <p className="text-secondary text-lg font-bold">info@ecrn.be</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-5">
+                      <div className="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                        <MapPin className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-secondary/50 text-xs font-bold uppercase tracking-widest">Adres</p>
+                        <p className="text-secondary text-lg font-bold">Lindestraat 43</p>
+                        <p className="text-secondary/80 text-sm">9160 Lokeren, Belçika</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-secondary/60 text-sm font-bold uppercase tracking-widest">Bizi Arayın</p>
-                    <p className="text-xl font-bold">+32 (0) 489/15 53 16</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-6">
-                  <div className="bg-secondary text-primary p-4 rounded-2xl">
-                    <Mail className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-secondary/60 text-sm font-bold uppercase tracking-widest">E-posta</p>
-                    <p className="text-xl font-bold">info@ecrn.be</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-6">
-                  <div className="bg-secondary text-primary p-4 rounded-2xl">
-                    <MapPin className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-secondary/60 text-sm font-bold uppercase tracking-widest">Ofisimiz</p>
-                    <p className="text-xl font-bold">Belçika</p>
+
+                  {/* Social */}
+                  <div className="mt-16 flex gap-3">
+                    {[Facebook, Instagram, Linkedin].map((Icon, i) => (
+                      <a key={i} href="#" className="w-10 h-10 bg-secondary/80 hover:bg-secondary rounded-xl flex items-center justify-center transition-all hover:shadow-lg">
+                        <Icon className="w-4 h-4 text-primary" />
+                      </a>
+                    ))}
                   </div>
                 </div>
               </div>
 
-              <div className="mt-16 flex gap-4">
-                <div className="bg-secondary p-3 rounded-full hover:bg-white transition-colors cursor-pointer"><Facebook className="w-5 h-5 text-primary" /></div>
-                <div className="bg-secondary p-3 rounded-full hover:bg-white transition-colors cursor-pointer"><Instagram className="w-5 h-5 text-primary" /></div>
-                <div className="bg-secondary p-3 rounded-full hover:bg-white transition-colors cursor-pointer"><Linkedin className="w-5 h-5 text-primary" /></div>
-              </div>
-            </div>
-
-            <div className="lg:w-1/2 p-12 md:p-20">
-              <form className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">Ad Soyad</label>
-                    <input type="text" className="w-full bg-gray-100 border-none rounded-xl p-4 focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="John Doe" />
+              {/* Form Side */}
+              <div className="lg:w-7/12 p-10 md:p-16">
+                <form className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Ad Soyad</label>
+                      <input type="text" className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="Ad Soyad" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Telefon</label>
+                      <input type="tel" className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="+32 ..." />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">Telefon</label>
-                    <input type="tel" className="w-full bg-gray-100 border-none rounded-xl p-4 focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="+32 ..." />
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">E-posta</label>
+                    <input type="email" className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="info@example.com" />
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700">Hizmet Türü</label>
-                  <select className="w-full bg-gray-100 border-none rounded-xl p-4 focus:ring-2 focus:ring-primary outline-none transition-all appearance-none">
-                    <option>Vinç Kiralama</option>
-                    <option>Kamyon Taşımacılığı</option>
-                    <option>Özel Proje</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700">Mesajınız</label>
-                  <textarea rows={4} className="w-full bg-gray-100 border-none rounded-xl p-4 focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="Detayları buraya yazın..."></textarea>
-                </div>
-                <button className="w-full bg-secondary text-white py-5 rounded-xl font-bold text-lg hover:bg-primary hover:text-secondary transition-all transform active:scale-[0.98]">
-                  Teklif Talebi Gönder
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-secondary text-white py-12 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
-          <div className="flex items-center gap-3">
-            <div className="relative flex flex-col items-center scale-90 origin-left">
-              {/* Triangular Castle Logo - Ascending Left to Right (Same as Header) */}
-              <div className="relative w-40 h-20 flex items-end justify-center">
-                <div className="relative w-full h-16 overflow-hidden">
-                  {/* Triangular Background Shape */}
-                  <div 
-                    className="absolute bottom-4 left-0 w-full h-12 bg-secondary/10"
-                    style={{ 
-                      clipPath: 'polygon(0% 0%, 100% 70%, 100% 100%, 0% 100%)' 
-                    }}
-                  >
-                    {/* Castle Main Body */}
-                    <div 
-                      className="absolute inset-0 bg-primary"
-                      style={{ 
-                        clipPath: 'polygon(0% 20%, 100% 75%, 100% 100%, 0% 100%)' 
-                      }}
-                    ></div>
-
-                    {/* Castle Crenellations (Burçlar) - Eight yellow spikes, stopping before the right end */}
-                    <div className="absolute top-0 left-0 w-[80%] h-4 flex justify-between px-1 pointer-events-none">
-                      {[0, 8, 16, 24, 32, 40, 48, 56].map((y, i) => (
-                        <div 
-                          key={i} 
-                          className="w-2.5 h-5 bg-primary rounded-t-sm shadow-sm" 
-                          style={{ transform: `translateY(${y}%)` }}
-                        ></div>
-                      ))}
-                    </div>
-
-                    {/* Road Path - Bottom Curve */}
-                    <div className="absolute bottom-0 left-0 w-full h-4 bg-white/90 flex items-center justify-center">
-                      <div className="w-full h-[1px] border-t border-dashed border-secondary/40"></div>
-                    </div>
-
-                    {/* ECRN Text - Integrated into the shape */}
-                    <div className="absolute inset-0 flex items-center justify-center pl-4 pt-2">
-                      <span className="text-2xl font-black italic tracking-tighter text-secondary">Ecrn</span>
-                      <span className="text-[10px] font-bold text-secondary/70 mt-3 ml-1">bvba</span>
-                    </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Hizmet Türü</label>
+                    <select className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all appearance-none">
+                      <option value="">Seçiniz...</option>
+                      <option>Altyapı Kazı İşleri</option>
+                      <option>Vinçli Direk Montajı</option>
+                      <option>Kanal Kapatma ve Restorasyon</option>
+                    </select>
                   </div>
-                </div>
-
-                {/* Flag Pole & Flag - On the highest point (Left) */}
-                <div className="absolute top-0 left-[2%] w-[1.5px] h-12 bg-white/90">
-                  <div className="absolute top-1 left-0 w-5 h-3 bg-primary origin-left rounded-sm"></div>
-                </div>
-
-                {/* Tagline - Curved underneath */}
-                <div className="absolute bottom-0 w-full text-center">
-                  <p className="text-[8px] font-bold uppercase tracking-[0.25em] text-primary leading-none">
-                    Nationaal & Internationaal Transport
-                  </p>
-                </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Mesajınız</label>
+                    <textarea rows={4} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none" placeholder="Proje detaylarınızı buraya yazın..."></textarea>
+                  </div>
+                  <button type="submit" className="w-full bg-primary hover:bg-primary-light text-secondary py-4 rounded-xl font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/20 active:scale-[0.98]">
+                    Teklif Talebi Gönder
+                  </button>
+                </form>
               </div>
             </div>
           </div>
-          <p className="text-gray-500">© 2026 ECRN Logistics & Crane. Tüm Hakları Saklıdır.</p>
-          <div className="flex gap-8 text-sm font-medium text-gray-400">
-            <a href="#" className="hover:text-white">KVKK</a>
-            <a href="#" className="hover:text-white">Çerez Politikası</a>
-          </div>
+
+          {/* Map */}
+          <AnimatedSection className="mt-8">
+            <div className="glass rounded-3xl overflow-hidden border border-white/5 h-[300px]">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2506.5!2d3.988!3d51.097!2m3!1f0!2f0!3f0!3m2!1i1024!2i760!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTHCsDA1JzQ5LjIiTiAzwrA1OSczMC4wIkU!5e0!3m2!1str!2sbe!4v1"
+                width="100%"
+                height="100%"
+                style={{ border: 0, filter: 'invert(0.9) hue-rotate(180deg) brightness(0.8) contrast(1.2)' }}
+                allowFullScreen
+                loading="lazy"
+              ></iframe>
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* ====== FOOTER ====== */}
+      <footer className="py-12 px-6 border-t border-white/5">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-gray-500 text-sm">© 2024 ECRN bvba. Tüm hakları saklıdır.</p>
+          <p className="text-gray-600 text-xs">Vinç ve Kazı Hizmetleri</p>
         </div>
       </footer>
+
+      {/* WhatsApp Button */}
+      <WhatsAppButton />
     </div>
   );
 }
