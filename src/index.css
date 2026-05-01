@@ -2,11 +2,272 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --primary: #FBBF24;
-  --secondary: #111827;
+/* ============================================
+   ECRN Premium Dark Theme — Global Styles
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+/* --- Base Reset & Dark Theme --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
-  @apply bg-white text-gray-900 font-sans;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0A0E1A;
+  color: #E8ECF1;
+  overflow-x: hidden;
+}
+
+/* --- Custom Scrollbar --- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0E1A;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #F5A623, #D4891A);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FFD073;
+}
+
+/* --- Selection --- */
+::selection {
+  background: #F5A62340;
+  color: #FFD073;
+}
+
+/* ============================================
+   3D CRANE TRUCK — BACKGROUND (Far, Small)
+   ============================================ */
+.truck-bg-container {
+  position: absolute;
+  bottom: 30%;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  pointer-events: none;
+  z-index: 1;
+  perspective: 800px;
+}
+
+.truck-bg {
+  animation: truckBgMove 22s linear infinite;
+  transform-style: preserve-3d;
+  opacity: 0.2;
+  filter: blur(0.5px);
+}
+
+@keyframes truckBgMove {
+  0% { transform: translateX(105vw) scale(0.5) rotateY(-5deg); }
+  100% { transform: translateX(-130%) scale(0.5) rotateY(-5deg); }
+}
+
+/* ============================================
+   3D CRANE TRUCK — FOREGROUND (Close, Large)
+   ============================================ */
+.truck-fg-container {
+  position: absolute;
+  bottom: 8%;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  pointer-events: none;
+  z-index: 5;
+  perspective: 600px;
+}
+
+.truck-fg {
+  animation: truckFgMove 16s linear infinite;
+  transform-style: preserve-3d;
+  opacity: 0.45;
+}
+
+@keyframes truckFgMove {
+  0% { transform: translateX(-130%) scale(1.15) rotateY(3deg); }
+  100% { transform: translateX(105vw) scale(1.15) rotateY(3deg); }
+}
+
+/* ============================================
+   CRANE ANIMATIONS  
+   ============================================ */
+.crane-boom {
+  transform-origin: bottom center;
+  animation: craneBoomLift 5s ease-in-out infinite;
+}
+
+@keyframes craneBoomLift {
+  0%, 100% { transform: rotate(18deg); }
+  50% { transform: rotate(32deg); }
+}
+
+.crane-telescope {
+  animation: craneTelescopeExtend 7s ease-in-out infinite;
+}
+
+@keyframes craneTelescopeExtend {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+}
+
+.crane-hook-line {
+  transform-origin: top center;
+  animation: hookLineSwing 3.5s ease-in-out infinite;
+}
+
+@keyframes hookLineSwing {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+/* ============================================
+   WHEEL SPIN
+   ============================================ */
+.wheel {
+  animation: wheelRotate 1s linear infinite;
+}
+
+@keyframes wheelRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ============================================
+   PARTICLE EFFECTS
+   ============================================ */
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #F5A623;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: particleDrift 6s ease-in-out infinite;
+  box-shadow: 0 0 6px #F5A62360, 0 0 12px #F5A62330;
+}
+
+@keyframes particleDrift {
+  0% { 
+    transform: translateY(0) translateX(0) scale(1); 
+    opacity: 0;
+  }
+  10% { opacity: 0.8; }
+  50% { 
+    transform: translateY(-80px) translateX(30px) scale(0.6); 
+    opacity: 0.4;
+  }
+  100% { 
+    transform: translateY(-160px) translateX(-20px) scale(0.2); 
+    opacity: 0;
+  }
+}
+
+/* ============================================
+   ROAD EFFECTS
+   ============================================ */
+.road-line {
+  position: absolute;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    #F5A62340 0px,
+    #F5A62340 20px,
+    transparent 20px,
+    transparent 40px
+  );
+  animation: roadScroll 2s linear infinite;
+}
+
+@keyframes roadScroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 0; }
+}
+
+/* ============================================
+   GLASSMORPHISM
+   ============================================ */
+.glass {
+  background: rgba(17, 22, 40, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 166, 35, 0.08);
+}
+
+.glass-card {
+  background: rgba(17, 22, 40, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(245, 166, 35, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(17, 22, 40, 0.7);
+  border-color: rgba(245, 166, 35, 0.25);
+  box-shadow: 0 0 40px rgba(245, 166, 35, 0.08), 0 25px 50px rgba(0,0,0,0.3);
+  transform: translateY(-8px);
+}
+
+/* ============================================
+   GLOW EFFECTS
+   ============================================ */
+.glow-text {
+  text-shadow: 0 0 20px rgba(245, 166, 35, 0.3), 0 0 40px rgba(245, 166, 35, 0.15);
+}
+
+.glow-border {
+  box-shadow: 0 0 15px rgba(245, 166, 35, 0.1), inset 0 0 15px rgba(245, 166, 35, 0.05);
+}
+
+.glow-dot {
+  box-shadow: 0 0 8px #F5A623, 0 0 16px #F5A62350;
+}
+
+/* ============================================
+   GRID BACKGROUND
+   ============================================ */
+.bg-grid {
+  background-image: 
+    linear-gradient(rgba(245,166,35,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,166,35,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ============================================
+   HEADLIGHT BEAM
+   ============================================ */
+.headlight {
+  position: absolute;
+  width: 80px;
+  height: 40px;
+  background: radial-gradient(ellipse at left, rgba(245,200,80,0.3), transparent 70%);
+  animation: headlightFlicker 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes headlightFlicker {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .truck-bg { display: none; }
+  .truck-fg-container { bottom: 4%; }
+  .truck-fg { opacity: 0.25; }
+  
+  .particle:nth-child(n+6) { display: none; }
 }
