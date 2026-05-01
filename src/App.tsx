@@ -151,8 +151,12 @@ function App() {
           {/* Logo */}
           <a href="#home" className="flex items-center gap-3 group">
             <div className="relative">
-              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
-                <Zap className="w-7 h-7 text-secondary" />
+              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow overflow-hidden">
+                <img 
+                  src="https://i.imgur.com/8QZ8X7L.png" 
+                  alt="ECRN Logo" 
+                  className="w-10 h-10 object-contain"
+                />
               </div>
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent-cyan rounded-full animate-pulse"></div>
             </div>
