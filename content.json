@@ -29,7 +29,7 @@
     "badge": "Fluvius Standartlarında",
     "titleLine1": "Vinç Hizmetleri",
     "titleLine2": "ve Kazı Çözümleri",
-    "subtitle": "Belçika genelinde profesyonel vinçle aydınlatma direği dikimi ve sokaklarda kablo kanalı açma hizmetleri.",
+    "subtitle": "Belçika genelinde profesyonel vinçle aydınlatma direği dikimi ve cadde/sokaklarda kablo kanalı açma hizmetleri.",
     "bgImage": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=2000",
     "primaryBtn": "Hizmetlerimizi Keşfedin",
     "secondaryBtn": "Bize Ulaşın"
@@ -38,46 +38,30 @@
     "query": "Lindestraat 43, 9160 Lokeren, België"
   },
   "stats": [
-    {
-      "value": 10,
-      "suffix": "+",
-      "label": "Yıllık Deneyim"
-    },
-    {
-      "value": 100,
-      "suffix": "%",
-      "label": "Fluvius Uyumluluğu"
-    },
-    {
-      "value": 500,
-      "suffix": "+",
-      "label": "Tamamlanan Proje"
-    },
-    {
-      "value": 100,
-      "suffix": "%",
-      "label": "VCA Sertifikası"
-    }
+    { "value": 10, "suffix": "+", "label": "Yıllık Deneyim" },
+    { "value": 100, "suffix": "%", "label": "Fluvius Uyumluluğu" },
+    { "value": 500, "suffix": "+", "label": "Tamamlanan Proje" },
+    { "value": 100, "suffix": "%", "label": "VCA Sertifikası" }
   ],
   "servicesIntro": "Sadece elektrik altyapısı için kadde ve sokak kazıları ve vinçli aydınlatma direği dikimi yapıyoruz.",
   "services": [
     {
       "title": "Vinçli Direk Montajı",
       "desc": "Yüksek kapasiteli vinçlerle güvenli aydınlatma direği dikimi ve montajı. Uzman operatör ekibi.",
-      "icon": "Zap",
-      "img": "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800"
+      "img": "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800",
+      "icon": "Zap"
     },
     {
       "title": "Altyapı Kazı İşleri",
       "desc": "Fluvius kurallarına uygun kablo kanalı açma ve zemin hazırlığı. Güvenli ve hassas kazı çalışmaları.",
-      "icon": "Construction",
-      "img": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800"
+      "img": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800",
+      "icon": "Construction"
     },
     {
       "title": "Kanal Kapatma ve Restorasyon",
       "desc": "Kablo döşeme sonrası dolgu ve zemin restorasyonu. Fluvius standartlarına uygun tamamlama.",
-      "icon": "CheckCircle2",
-      "img": "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=800"
+      "img": "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=800",
+      "icon": "CheckCircle2"
     }
   ],
   "standards": {
