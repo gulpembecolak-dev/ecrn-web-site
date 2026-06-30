@@ -297,6 +297,26 @@ function App() {
     setFormMsg({ ok: true, text: 'WhatsApp açılıyor — mesajı göndererek talebinizi iletebilirsiniz.' });
     setForm(emptyForm);
   };
+
+  // Form → e-posta uygulaması (mailto): info@ecrn.be'ye hazır doldurulmuş mail açar.
+  const emailForm = () => {
+    setFormMsg(null);
+    if (form.company_website) return; // honeypot
+    if (!form.name.trim() || (!form.email.trim() && !form.phone.trim())) {
+      setFormMsg({ ok: false, text: 'Lütfen adınızı ve e-posta veya telefonunuzu girin.' });
+      return;
+    }
+    const body = [
+      'Merhaba, ECRN web sitesinden teklif talebi:',
+      `Ad Soyad: ${form.name}`,
+      form.phone ? `Telefon: ${form.phone}` : '',
+      form.email ? `E-posta: ${form.email}` : '',
+      form.service ? `Hizmet: ${form.service}` : '',
+      form.message ? `Mesaj: ${form.message}` : '',
+    ].filter(Boolean).join('\n');
+    window.location.href = `mailto:${company.email}?subject=${encodeURIComponent(`Teklif talebi — ${form.name}`)}&body=${encodeURIComponent(body)}`;
+    setFormMsg({ ok: true, text: 'E-posta uygulamanız açılıyor — mesajı göndererek talebinizi iletebilirsiniz.' });
+  };
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const heroParallax = useTransform(scrollYProgress, [0, 1], [0, -150]);
@@ -671,6 +691,9 @@ function App() {
                   <button type="submit" className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all hover:shadow-xl hover:shadow-green-500/20 active:scale-[0.98]">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
                     WhatsApp ile Gönder
+                  </button>
+                  <button type="button" onClick={emailForm} className="w-full bg-white/5 border border-white/10 hover:border-primary/40 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+                    <Mail className="w-5 h-5" /> E-posta ile Gönder
                   </button>
                 </form>
               </div>
