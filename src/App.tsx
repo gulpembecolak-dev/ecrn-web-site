@@ -211,9 +211,6 @@ type SiteContent = typeof DEFAULT_CONTENT;
 const resolveImg = (src: string) =>
   !src ? src : /^https?:\/\//.test(src) ? src : `${import.meta.env.BASE_URL}${src.replace(/^\//, '')}`;
 
-// İletişim formu için arka uç adresi (panel ile aynı Vercel projesi).
-// Geliştirici deploy sonrası buraya Vercel adresini yazar, örn. "https://ecrn-cms-api.vercel.app".
-const CONTACT_API: string = 'https://ecrn-cms-api.vercel.app';
 
 /* ============================================
    MAIN APP
@@ -275,38 +272,30 @@ function App() {
   // İletişim formu
   const emptyForm = { name: '', email: '', phone: '', service: '', message: '', company_website: '' };
   const [form, setForm] = useState(emptyForm);
-  const [sending, setSending] = useState(false);
   const [formMsg, setFormMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const setField = (k: keyof typeof emptyForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }));
 
-  const submitForm = async (e: React.FormEvent) => {
+  // Form → WhatsApp: talep doğrudan firmanın WhatsApp'ına düşer (sunucu/e-posta gerekmez).
+  const submitForm = (e: React.FormEvent) => {
     e.preventDefault();
     setFormMsg(null);
-    if (form.company_website) return; // honeypot: bot doldurursa sessizce çık
+    if (form.company_website) return; // honeypot
     if (!form.name.trim() || (!form.email.trim() && !form.phone.trim())) {
       setFormMsg({ ok: false, text: 'Lütfen adınızı ve e-posta veya telefonunuzu girin.' });
       return;
     }
-    if (!CONTACT_API) {
-      setFormMsg({ ok: false, text: 'Form henüz yapılandırılmadı. Lütfen telefon veya e-posta ile ulaşın.' });
-      return;
-    }
-    setSending(true);
-    try {
-      const r = await fetch(`${CONTACT_API.replace(/\/$/, '')}/api/contact`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      if (!r.ok) throw new Error();
-      setFormMsg({ ok: true, text: 'Teşekkürler! Talebiniz iletildi, en kısa sürede dönüş yapacağız.' });
-      setForm(emptyForm);
-    } catch {
-      setFormMsg({ ok: false, text: 'Gönderilemedi. Lütfen telefon veya e-posta ile ulaşın.' });
-    } finally {
-      setSending(false);
-    }
+    const text = [
+      'Merhaba, ECRN web sitesinden teklif talebi:',
+      `Ad Soyad: ${form.name}`,
+      form.phone ? `Telefon: ${form.phone}` : '',
+      form.email ? `E-posta: ${form.email}` : '',
+      form.service ? `Hizmet: ${form.service}` : '',
+      form.message ? `Mesaj: ${form.message}` : '',
+    ].filter(Boolean).join('\n');
+    window.open(`https://wa.me/${company.whatsapp}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+    setFormMsg({ ok: true, text: 'WhatsApp açılıyor — mesajı göndererek talebinizi iletebilirsiniz.' });
+    setForm(emptyForm);
   };
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -682,8 +671,9 @@ function App() {
                   {formMsg && (
                     <p className={`text-sm font-medium ${formMsg.ok ? 'text-green-400' : 'text-red-400'}`}>{formMsg.text}</p>
                   )}
-                  <button type="submit" disabled={sending} className="w-full bg-primary hover:bg-primary-light text-secondary py-4 rounded-xl font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/20 active:scale-[0.98] disabled:opacity-60">
-                    {sending ? 'Gönderiliyor...' : 'Teklif Talebi Gönder'}
+                  <button type="submit" className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all hover:shadow-xl hover:shadow-green-500/20 active:scale-[0.98]">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+                    WhatsApp ile Gönder
                   </button>
                 </form>
               </div>
