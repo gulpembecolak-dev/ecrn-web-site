@@ -1,0 +1,81 @@
+{
+  "company": {
+    "name": "ECRN bvba",
+    "owner": "HİDAYET OTER",
+    "phone": "+32 (0) 489/15 53 16",
+    "whatsapp": "32489155316",
+    "email": "info@ecrn.be",
+    "addressLine1": "Lindestraat 43",
+    "addressLine2": "9160 Lokeren, Belçika",
+    "logo": "images/logo.png"
+  },
+  "social": {
+    "facebook": "",
+    "instagram": "",
+    "linkedin": ""
+  },
+  "seo": {
+    "title": "ECRN bvba — Vinç ve Kazı Hizmetleri | Aydınlatma Direği Dikimi",
+    "description": "ECRN bvba - Belçika genelinde Fluvius standartlarına uygun vinçli aydınlatma direği dikimi ve elektrik altyapı kazıları hizmetleri. VCA sertifikalı."
+  },
+  "nav": {
+    "home": "Anasayfa",
+    "services": "Hizmetler",
+    "standards": "Fluvius Standartları",
+    "contact": "İletişim",
+    "cta": "Hemen Teklif Al"
+  },
+  "hero": {
+    "badge": "Fluvius Standartlarında",
+    "titleLine1": "Vinç Hizmetleri",
+    "titleLine2": "ve Kazı Çözümleri",
+    "subtitle": "Belçika genelinde profesyonel vinçle aydınlatma direği dikimi ve cadde/sokaklarda kablo kanalı açma hizmetleri.",
+    "bgImage": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=2000",
+    "primaryBtn": "Hizmetlerimizi Keşfedin",
+    "secondaryBtn": "Bize Ulaşın"
+  },
+  "map": {
+    "query": "Lindestraat 43, 9160 Lokeren, België"
+  },
+  "stats": [
+    { "value": 10, "suffix": "+", "label": "Yıllık Deneyim" },
+    { "value": 100, "suffix": "%", "label": "Fluvius Uyumluluğu" },
+    { "value": 500, "suffix": "+", "label": "Tamamlanan Proje" },
+    { "value": 100, "suffix": "%", "label": "VCA Sertifikası" }
+  ],
+  "servicesIntro": "Sadece elektrik altyapısı için kadde ve sokak kazıları ve vinçli aydınlatma direği dikimi yapıyoruz.",
+  "services": [
+    {
+      "title": "Vinçli Direk Montajı",
+      "desc": "Yüksek kapasiteli vinçlerle güvenli aydınlatma direği dikimi ve montajı. Uzman operatör ekibi.",
+      "img": "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800",
+      "icon": "Zap"
+    },
+    {
+      "title": "Altyapı Kazı İşleri",
+      "desc": "Fluvius kurallarına uygun kablo kanalı açma ve zemin hazırlığı. Güvenli ve hassas kazı çalışmaları.",
+      "img": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800",
+      "icon": "Construction"
+    },
+    {
+      "title": "Kanal Kapatma ve Restorasyon",
+      "desc": "Kablo döşeme sonrası dolgu ve zemin restorasyonu. Fluvius standartlarına uygun tamamlama.",
+      "img": "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=800",
+      "icon": "CheckCircle2"
+    }
+  ],
+  "standards": {
+    "intro": "ECRN olarak, elektrik altyapı kazı ve montaj işlerinde VCA iş güvenliği sertifikası ve Fluvius teknik kabul süreçlerine %100 uyum sağlıyoruz.",
+    "image": "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=1000",
+    "items": [
+      "VCA İş Güvenliği Sertifikası",
+      "Fluvius Teknik Kabul Süreçlerine %100 Uyum",
+      "Uzman ve Deneyimli Operatör Ekibi",
+      "Güvenli ve Hassas Çalışma Prensipleri"
+    ]
+  },
+  "footer": {
+    "copyright": "© 2024 ECRN bvba. Tüm hakları saklıdır.",
+    "tagline": "Vinç ve Kazı Hizmetleri"
+  }
+}
