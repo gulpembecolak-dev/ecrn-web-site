@@ -18,7 +18,20 @@ import {
   Zap,
   HardHat,
   FileCheck,
+  Truck,
+  Wrench,
+  Hammer,
 } from 'lucide-react';
+
+/* Panelden seçilebilen hizmet ikonları (isim → bileşen) */
+const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  Zap, Construction, CheckCircle2, HardHat, ShieldCheck, FileCheck, Award, Truck, Wrench, Hammer,
+};
+const iconFor = (name: string, fallbackIndex = 0) => {
+  const order = ['Zap', 'Construction', 'CheckCircle2'];
+  const Comp = ICONS[name] || ICONS[order[fallbackIndex % order.length]] || Zap;
+  return <Comp className="w-7 h-7" />;
+};
 
 /* ============================================
    PARTICLES COMPONENT
@@ -111,10 +124,10 @@ const AnimatedSection = ({ children, className = '', delay = 0 }: { children: Re
 /* ============================================
    WHATSAPP FLOATING BUTTON
    ============================================ */
-const WhatsAppButton = () => {
+const WhatsAppButton = ({ phone }: { phone: string }) => {
   return (
     <a
-      href="https://wa.me/32489155316"
+      href={`https://wa.me/${phone}`}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-2xl hover:shadow-green-500/50 transition-all hover:scale-110 active:scale-95"
@@ -127,20 +140,184 @@ const WhatsAppButton = () => {
 };
 
 /* ============================================
+   EDITABLE CONTENT (content.json)
+   Bu varsayılan değerler yedektir: content.json çekilemezse
+   site yine de eski/varsayılan içerikle çalışır.
+   ============================================ */
+const DEFAULT_CONTENT = {
+  company: {
+    name: 'ECRN bvba',
+    owner: 'HİDAYET OTER',
+    phone: '+32 (0) 489/15 53 16',
+    whatsapp: '32489155316',
+    email: 'info@ecrn.be',
+    addressLine1: 'Lindestraat 43',
+    addressLine2: '9160 Lokeren, Belçika',
+    logo: 'images/logo.png',
+  },
+  social: { facebook: '', instagram: '', linkedin: '' },
+  seo: {
+    title: 'ECRN bvba — Vinç ve Kazı Hizmetleri | Aydınlatma Direği Dikimi',
+    description: 'ECRN bvba - Belçika genelinde Fluvius standartlarına uygun vinçli aydınlatma direği dikimi ve elektrik altyapı kazıları hizmetleri. VCA sertifikalı.',
+  },
+  nav: {
+    home: 'Anasayfa',
+    services: 'Hizmetler',
+    standards: 'Fluvius Standartları',
+    contact: 'İletişim',
+    cta: 'Hemen Teklif Al',
+  },
+  hero: {
+    badge: 'Fluvius Standartlarında',
+    titleLine1: 'Vinç Hizmetleri',
+    titleLine2: 've Kazı Çözümleri',
+    subtitle: 'Belçika genelinde profesyonel vinçle aydınlatma direği dikimi ve cadde/sokaklarda kablo kanalı açma hizmetleri.',
+    bgImage: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=2000',
+    primaryBtn: 'Hizmetlerimizi Keşfedin',
+    secondaryBtn: 'Bize Ulaşın',
+  },
+  map: { query: 'Lindestraat 43, 9160 Lokeren, België' },
+  stats: [
+    { value: 10, suffix: '+', label: 'Yıllık Deneyim' },
+    { value: 100, suffix: '%', label: 'Fluvius Uyumluluğu' },
+    { value: 500, suffix: '+', label: 'Tamamlanan Proje' },
+    { value: 100, suffix: '%', label: 'VCA Sertifikası' },
+  ],
+  servicesIntro: 'Sadece elektrik altyapısı için kadde ve sokak kazıları ve vinçli aydınlatma direği dikimi yapıyoruz.',
+  services: [
+    { title: 'Vinçli Direk Montajı', desc: 'Yüksek kapasiteli vinçlerle güvenli aydınlatma direği dikimi ve montajı. Uzman operatör ekibi.', img: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800', icon: 'Zap' },
+    { title: 'Altyapı Kazı İşleri', desc: 'Fluvius kurallarına uygun kablo kanalı açma ve zemin hazırlığı. Güvenli ve hassas kazı çalışmaları.', img: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800', icon: 'Construction' },
+    { title: 'Kanal Kapatma ve Restorasyon', desc: 'Kablo döşeme sonrası dolgu ve zemin restorasyonu. Fluvius standartlarına uygun tamamlama.', img: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=800', icon: 'CheckCircle2' },
+  ],
+  standards: {
+    intro: "ECRN olarak, elektrik altyapı kazı ve montaj işlerinde VCA iş güvenliği sertifikası ve Fluvius teknik kabul süreçlerine %100 uyum sağlıyoruz.",
+    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=1000',
+    items: [
+      'VCA İş Güvenliği Sertifikası',
+      'Fluvius Teknik Kabul Süreçlerine %100 Uyum',
+      'Uzman ve Deneyimli Operatör Ekibi',
+      'Güvenli ve Hassas Çalışma Prensipleri',
+    ],
+  },
+  footer: {
+    copyright: '© 2024 ECRN bvba. Tüm hakları saklıdır.',
+    tagline: 'Vinç ve Kazı Hizmetleri',
+  },
+};
+
+type SiteContent = typeof DEFAULT_CONTENT;
+
+// http(s) ile başlayan görseller olduğu gibi; yüklenen yerel görseller siteye göreli çözülür.
+const resolveImg = (src: string) =>
+  !src ? src : /^https?:\/\//.test(src) ? src : `${import.meta.env.BASE_URL}${src.replace(/^\//, '')}`;
+
+// İletişim formu için arka uç adresi (panel ile aynı Vercel projesi).
+// Geliştirici deploy sonrası buraya Vercel adresini yazar, örn. "https://ecrn-cms-api.vercel.app".
+const CONTACT_API: string = '';
+
+/* ============================================
    MAIN APP
    ============================================ */
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}content.json?t=${Date.now()}`)
+      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then((data: Partial<SiteContent>) =>
+        setContent(prev => ({
+          ...prev,
+          ...data,
+          company: { ...prev.company, ...data.company },
+          seo: { ...prev.seo, ...data.seo },
+          nav: { ...prev.nav, ...data.nav },
+          hero: { ...prev.hero, ...data.hero },
+          social: { ...prev.social, ...data.social },
+          map: { ...prev.map, ...data.map },
+          standards: { ...prev.standards, ...data.standards },
+          footer: { ...prev.footer, ...data.footer },
+        })),
+      )
+      .catch(() => {/* yedek içerik kullanılır */});
+  }, []);
+
+  const { company, hero, stats, services, standards, footer, social, nav, seo, map } = content;
+
+  // SEO: sayfa başlığı + açıklaması (Google'da görünen) içerikten gelsin.
+  useEffect(() => {
+    if (seo.title) document.title = seo.title;
+    if (seo.description) {
+      let m = document.querySelector<HTMLMetaElement>("meta[name='description']");
+      if (!m) { m = document.createElement('meta'); m.name = 'description'; document.head.appendChild(m); }
+      m.content = seo.description;
+    }
+  }, [seo.title, seo.description]);
+
+  const mapSrc = map.query
+    ? `https://maps.google.com/maps?q=${encodeURIComponent(map.query)}&output=embed`
+    : `https://maps.google.com/maps?q=${encodeURIComponent(`${company.addressLine1} ${company.addressLine2}`)}&output=embed`;
+
+  // Favicon her zaman logoyu takip etsin (müşteri logoyu değiştirince sekme ikonu da değişir).
+  useEffect(() => {
+    if (!company.logo) return;
+    let link = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
+    if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+    link.href = resolveImg(company.logo);
+  }, [company.logo]);
+
+  const socialList = [
+    { Icon: Facebook, url: social.facebook },
+    { Icon: Instagram, url: social.instagram },
+    { Icon: Linkedin, url: social.linkedin },
+  ].filter(s => s.url && s.url.trim());
+
+  // İletişim formu
+  const emptyForm = { name: '', email: '', phone: '', service: '', message: '', company_website: '' };
+  const [form, setForm] = useState(emptyForm);
+  const [sending, setSending] = useState(false);
+  const [formMsg, setFormMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const setField = (k: keyof typeof emptyForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+    setForm(f => ({ ...f, [k]: e.target.value }));
+
+  const submitForm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormMsg(null);
+    if (form.company_website) return; // honeypot: bot doldurursa sessizce çık
+    if (!form.name.trim() || (!form.email.trim() && !form.phone.trim())) {
+      setFormMsg({ ok: false, text: 'Lütfen adınızı ve e-posta veya telefonunuzu girin.' });
+      return;
+    }
+    if (!CONTACT_API) {
+      setFormMsg({ ok: false, text: 'Form henüz yapılandırılmadı. Lütfen telefon veya e-posta ile ulaşın.' });
+      return;
+    }
+    setSending(true);
+    try {
+      const r = await fetch(`${CONTACT_API.replace(/\/$/, '')}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!r.ok) throw new Error();
+      setFormMsg({ ok: true, text: 'Teşekkürler! Talebiniz iletildi, en kısa sürede dönüş yapacağız.' });
+      setForm(emptyForm);
+    } catch {
+      setFormMsg({ ok: false, text: 'Gönderilemedi. Lütfen telefon veya e-posta ile ulaşın.' });
+    } finally {
+      setSending(false);
+    }
+  };
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const heroParallax = useTransform(scrollYProgress, [0, 1], [0, -150]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   const navLinks = [
-    { label: 'Anasayfa', href: '#home' },
-    { label: 'Hizmetler', href: '#services' },
-    { label: 'Fluvius Standartları', href: '#standards' },
-    { label: 'İletişim', href: '#contact' },
+    { label: nav.home, href: '#home' },
+    { label: nav.services, href: '#services' },
+    { label: nav.standards, href: '#standards' },
+    { label: nav.contact, href: '#contact' },
   ];
 
   return (
@@ -151,19 +328,18 @@ function App() {
           {/* Logo */}
           <a href="#home" className="flex items-center gap-3 group">
             <div className="relative">
-              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow overflow-hidden">
-                <img 
-                  src="https://i.imgur.com/8QZ8X7L.png" 
-                  alt="ECRN Logo" 
-                  className="w-10 h-10 object-contain"
-                />
-              </div>
+              <img
+                src={resolveImg(company.logo)}
+                alt="ECRN Logo"
+                className="h-14 md:h-16 w-auto object-contain transition-transform group-hover:scale-105"
+                style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.45))' }}
+              />
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent-cyan rounded-full animate-pulse"></div>
             </div>
             <div>
               <span className="text-2xl font-black font-display text-white tracking-tight">ECRN</span>
               <span className="text-[10px] text-primary font-bold ml-1">bvba</span>
-              <p className="text-[8px] text-gray-500 uppercase tracking-[0.2em] -mt-1">Vinç ve Kazı Hizmetleri</p>
+              <p className="text-[8px] text-gray-500 uppercase tracking-[0.2em] -mt-1">{footer.tagline}</p>
             </div>
           </a>
 
@@ -175,7 +351,7 @@ function App() {
               </a>
             ))}
             <a href="#contact" className="bg-primary hover:bg-primary-light text-secondary px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:shadow-lg hover:shadow-primary/20 active:scale-95">
-              Hemen Teklif Al
+              {nav.cta}
             </a>
           </div>
 
@@ -198,7 +374,7 @@ function App() {
               </a>
             ))}
             <a href="#contact" onClick={() => setMenuOpen(false)} className="block mt-2 mx-4 text-center bg-primary text-secondary px-6 py-3 rounded-xl font-bold">
-              Hemen Teklif Al
+              {nav.cta}
             </a>
           </motion.div>
         )}
@@ -208,9 +384,9 @@ function App() {
       <section id="home" ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0">
-          <img 
-            src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=2000" 
-            alt="Elektrik altyapı çalışması" 
+          <img
+            src={resolveImg(hero.bgImage)}
+            alt="Elektrik altyapı çalışması"
             className="w-full h-full object-cover opacity-30"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-secondary via-secondary/80 to-secondary"></div>
@@ -237,26 +413,26 @@ function App() {
           >
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-5 py-2 mb-8 backdrop-blur-sm">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-              <span className="text-primary text-sm font-semibold tracking-wide">Fluvius Standartlarında</span>
+              <span className="text-primary text-sm font-semibold tracking-wide">{hero.badge}</span>
             </div>
 
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-display text-white mb-6 leading-[0.95]">
-              Vinç Hizmetleri
+              {hero.titleLine1}
               <br />
-              <span className="text-primary glow-text">ve Kazı Çözümleri</span>
+              <span className="text-primary glow-text">{hero.titleLine2}</span>
             </h1>
 
             <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-              Belçika genelinde profesyonel vinçle aydınlatma direği dikimi ve cadde/sokaklarda kablo kanalı açma hizmetleri.
+              {hero.subtitle}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="#services" className="group bg-primary hover:bg-primary-light text-secondary px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all hover:shadow-xl hover:shadow-primary/20 active:scale-[0.98]">
-                Hizmetlerimizi Keşfedin
+                {hero.primaryBtn}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a href="#contact" className="glass border border-white/10 hover:border-primary/30 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all hover:shadow-lg active:scale-[0.98]">
-                Bize Ulaşın
+                {hero.secondaryBtn}
               </a>
             </div>
           </motion.div>
@@ -279,10 +455,9 @@ function App() {
       <section className="relative py-16 px-6 border-y border-white/5" style={{ background: 'linear-gradient(180deg, #0D1117, #0A0E1A)' }}>
         <div className="absolute inset-0 bg-grid opacity-30"></div>
         <div className="relative max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          <StatCounter value={10} suffix="+" label="Yıllık Deneyim" />
-          <StatCounter value={100} suffix="%" label="Fluvius Uyumluluğu" />
-          <StatCounter value={500} suffix="+" label="Tamamlanan Proje" />
-          <StatCounter value={100} suffix="%" label="VCA Sertifikası" />
+          {stats.map((s, i) => (
+            <StatCounter key={i} value={s.value} suffix={s.suffix} label={s.label} />
+          ))}
         </div>
       </section>
 
@@ -299,44 +474,24 @@ function App() {
             </h2>
             <div className="h-1 w-20 bg-gradient-to-r from-primary to-primary-dark mx-auto rounded-full"></div>
             <p className="text-gray-400 mt-8 max-w-2xl mx-auto text-lg leading-relaxed">
-              Sadece elektrik altyapısı için kadde ve sokak kazıları ve vinçli aydınlatma direği dikimi yapıyoruz.
+              {content.servicesIntro}
             </p>
           </AnimatedSection>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                title: 'Vinçli Direk Montajı',
-                desc: 'Yüksek kapasiteli vinçlerle güvenli aydınlatma direği dikimi ve montajı. Uzman operatör ekibi.',
-                icon: <Zap className="w-7 h-7" />,
-                img: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800',
-                gradient: 'from-blue-500/10 to-cyan-600/5',
-              },
-              {
-                title: 'Altyapı Kazı İşleri',
-                desc: 'Fluvius kurallarına uygun kablo kanalı açma ve zemin hazırlığı. Güvenli ve hassas kazı çalışmaları.',
-                icon: <Construction className="w-7 h-7" />,
-                img: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800',
-                gradient: 'from-amber-500/10 to-orange-600/5',
-              },
-              {
-                title: 'Kanal Kapatma ve Restorasyon',
-                desc: 'Kablo döşeme sonrası dolgu ve zemin restorasyonu. Fluvius standartlarına uygun tamamlama.',
-                icon: <CheckCircle2 className="w-7 h-7" />,
-                img: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=800',
-                gradient: 'from-emerald-500/10 to-teal-600/5',
-              },
-            ].map((service, i) => (
+            {services.map((service, i) => {
+              const gradients = ['from-blue-500/10 to-cyan-600/5', 'from-amber-500/10 to-orange-600/5', 'from-emerald-500/10 to-teal-600/5'];
+              return (
               <AnimatedSection key={i} delay={i * 0.15}>
                 <div className="glass-card rounded-3xl overflow-hidden group cursor-pointer h-full">
                   <div className="h-56 overflow-hidden relative">
-                    <img src={service.img} alt={service.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img src={resolveImg(service.img)} alt={service.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-secondary via-transparent to-transparent"></div>
-                    <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+                    <div className={`absolute inset-0 bg-gradient-to-br ${gradients[i % 3]} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
                   </div>
                   <div className="p-8">
                     <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-secondary transition-all duration-300">
-                      {service.icon}
+                      {iconFor((service as { icon?: string }).icon || '', i)}
                     </div>
                     <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors">{service.title}</h3>
                     <p className="text-gray-400 leading-relaxed mb-6">{service.desc}</p>
@@ -346,7 +501,8 @@ function App() {
                   </div>
                 </div>
               </AnimatedSection>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -362,7 +518,7 @@ function App() {
             <div className="relative">
               <div className="absolute -top-8 -left-8 w-72 h-72 rounded-full blur-3xl opacity-15 bg-primary"></div>
               <img
-                src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=1000"
+                src={resolveImg(standards.image)}
                 alt="Fluvius standartları"
                 className="rounded-3xl relative z-10 shadow-2xl shadow-black/50 border border-white/5"
               />
@@ -392,16 +548,13 @@ function App() {
               Neden <span className="text-primary">ECRN</span>'i Seçmelisiniz?
             </h2>
             <p className="text-lg text-gray-400 mb-10 leading-relaxed">
-              ECRN olarak, elektrik altyapı kazı ve montaj işlerinde VCA iş güvenliği sertifikası ve Fluvius teknik kabul süreçlerine %100 uyum sağlıyoruz.
+              {standards.intro}
             </p>
 
             <div className="space-y-5">
-              {[
-                { icon: <ShieldCheck className="w-5 h-5" />, text: 'VCA İş Güvenliği Sertifikası' },
-                { icon: <FileCheck className="w-5 h-5" />, text: 'Fluvius Teknik Kabul Süreçlerine %100 Uyum' },
-                { icon: <HardHat className="w-5 h-5" />, text: 'Uzman ve Deneyimli Operatör Ekibi' },
-                { icon: <CheckCircle2 className="w-5 h-5" />, text: 'Güvenli ve Hassas Çalışma Prensipleri' },
-              ].map((item, i) => (
+              {standards.items.map((text, i) => {
+                const stdIcons = [<ShieldCheck className="w-5 h-5" />, <FileCheck className="w-5 h-5" />, <HardHat className="w-5 h-5" />, <CheckCircle2 className="w-5 h-5" />];
+                return (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, x: -20 }}
@@ -411,11 +564,12 @@ function App() {
                   className="flex items-center gap-4 p-4 rounded-xl hover:bg-white/5 transition-colors group"
                 >
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-secondary transition-all flex-shrink-0">
-                    {item.icon}
+                    {stdIcons[i % 4]}
                   </div>
-                  <span className="text-gray-300 font-medium">{item.text}</span>
+                  <span className="text-gray-300 font-medium">{text}</span>
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
           </AnimatedSection>
         </div>
@@ -454,7 +608,7 @@ function App() {
                       </div>
                       <div>
                         <p className="text-secondary/50 text-xs font-bold uppercase tracking-widest">Telefon</p>
-                        <p className="text-secondary text-lg font-bold">+32 (0) 489/15 53 16</p>
+                        <p className="text-secondary text-lg font-bold">{company.phone}</p>
                       </div>
                     </div>
 
@@ -464,7 +618,7 @@ function App() {
                       </div>
                       <div>
                         <p className="text-secondary/50 text-xs font-bold uppercase tracking-widest">E-posta</p>
-                        <p className="text-secondary text-lg font-bold">info@ecrn.be</p>
+                        <p className="text-secondary text-lg font-bold">{company.email}</p>
                       </div>
                     </div>
 
@@ -474,43 +628,45 @@ function App() {
                       </div>
                       <div>
                         <p className="text-secondary/50 text-xs font-bold uppercase tracking-widest">Adres</p>
-                        <p className="text-secondary text-lg font-bold">Lindestraat 43</p>
-                        <p className="text-secondary/80 text-sm">9160 Lokeren, Belçika</p>
+                        <p className="text-secondary text-lg font-bold">{company.addressLine1}</p>
+                        <p className="text-secondary/80 text-sm">{company.addressLine2}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Social */}
-                  <div className="mt-16 flex gap-3">
-                    {[Facebook, Instagram, Linkedin].map((Icon, i) => (
-                      <a key={i} href="#" className="w-10 h-10 bg-secondary/80 hover:bg-secondary rounded-xl flex items-center justify-center transition-all hover:shadow-lg">
-                        <Icon className="w-4 h-4 text-primary" />
-                      </a>
-                    ))}
-                  </div>
+                  {socialList.length > 0 && (
+                    <div className="mt-16 flex gap-3">
+                      {socialList.map(({ Icon, url }, i) => (
+                        <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-secondary/80 hover:bg-secondary rounded-xl flex items-center justify-center transition-all hover:shadow-lg">
+                          <Icon className="w-4 h-4 text-primary" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Form Side */}
               <div className="lg:w-7/12 p-10 md:p-16">
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={submitForm}>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Ad Soyad</label>
-                      <input type="text" className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="Ad Soyad" />
+                      <input type="text" value={form.name} onChange={setField('name')} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="Ad Soyad" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Telefon</label>
-                      <input type="tel" className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="+32 ..." />
+                      <input type="tel" value={form.phone} onChange={setField('phone')} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="+32 ..." />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">E-posta</label>
-                    <input type="email" className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="info@example.com" />
+                    <input type="email" value={form.email} onChange={setField('email')} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="info@example.com" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Hizmet Türü</label>
-                    <select className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all appearance-none">
+                    <select value={form.service} onChange={setField('service')} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all appearance-none">
                       <option value="">Seçiniz...</option>
                       <option>Altyapı Kazı İşleri</option>
                       <option>Vinçli Direk Montajı</option>
@@ -519,10 +675,15 @@ function App() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Mesajınız</label>
-                    <textarea rows={4} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none" placeholder="Proje detaylarınızı buraya yazın..."></textarea>
+                    <textarea rows={4} value={form.message} onChange={setField('message')} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none" placeholder="Proje detaylarınızı buraya yazın..."></textarea>
                   </div>
-                  <button type="submit" className="w-full bg-primary hover:bg-primary-light text-secondary py-4 rounded-xl font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/20 active:scale-[0.98]">
-                    Teklif Talebi Gönder
+                  {/* Honeypot: insanlar görmez, botlar doldurur */}
+                  <input type="text" tabIndex={-1} autoComplete="off" value={form.company_website} onChange={setField('company_website')} className="hidden" aria-hidden="true" />
+                  {formMsg && (
+                    <p className={`text-sm font-medium ${formMsg.ok ? 'text-green-400' : 'text-red-400'}`}>{formMsg.text}</p>
+                  )}
+                  <button type="submit" disabled={sending} className="w-full bg-primary hover:bg-primary-light text-secondary py-4 rounded-xl font-bold text-lg transition-all hover:shadow-xl hover:shadow-primary/20 active:scale-[0.98] disabled:opacity-60">
+                    {sending ? 'Gönderiliyor...' : 'Teklif Talebi Gönder'}
                   </button>
                 </form>
               </div>
@@ -533,7 +694,8 @@ function App() {
           <AnimatedSection className="mt-8">
             <div className="glass rounded-3xl overflow-hidden border border-white/5 h-[300px]">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2506.5!2d3.988!3d51.097!2m3!1f0!2f0!3f0!3m2!1i1024!2i760!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTHCsDA1JzQ5LjIiTiAzwrA1OSczMC4wIkU!5e0!3m2!1str!2sbe!4v1"
+                src={mapSrc}
+                title="Harita"
                 width="100%"
                 height="100%"
                 style={{ border: 0, filter: 'invert(0.9) hue-rotate(180deg) brightness(0.8) contrast(1.2)' }}
@@ -548,13 +710,13 @@ function App() {
       {/* ====== FOOTER ====== */}
       <footer className="py-12 px-6 border-t border-white/5">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-500 text-sm">© 2024 ECRN bvba. Tüm hakları saklıdır.</p>
-          <p className="text-gray-600 text-xs">Vinç ve Kazı Hizmetleri</p>
+          <p className="text-gray-500 text-sm">{footer.copyright}</p>
+          <p className="text-gray-600 text-xs">{footer.tagline}</p>
         </div>
       </footer>
 
       {/* WhatsApp Button */}
-      <WhatsAppButton />
+      <WhatsAppButton phone={company.whatsapp} />
     </div>
   );
 }

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>ECRN bvba — Site Yönetimi</title>
+  <style>
+    :root { --maroon:#800000; --maroon-dark:#660000; --green:#28a745; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',system-ui,Tahoma,sans-serif; background:linear-gradient(135deg,#1a1a2e,#16213e); color:#222; min-height:100vh; }
+    .wrap { max-width:840px; margin:0 auto; padding:20px; }
+    .header { background:var(--maroon); color:#fff; padding:22px 28px; border-radius:14px; margin-bottom:24px; box-shadow:0 6px 24px rgba(128,0,0,.35); }
+    .header h1 { font-size:22px; }
+    .header p { opacity:.9; margin-top:4px; font-size:14px; }
+    .card { background:#fff; border-radius:14px; padding:26px; margin-bottom:20px; box-shadow:0 4px 16px rgba(0,0,0,.12); }
+    .card h2 { color:var(--maroon); font-size:18px; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+    .field { margin-bottom:16px; }
+    .field label { display:block; font-weight:600; margin-bottom:6px; color:#444; font-size:14px; }
+    .field input, .field textarea { width:100%; padding:11px 13px; border:2px solid #e3e3e3; border-radius:9px; font-size:15px; font-family:inherit; transition:border-color .2s,box-shadow .2s; }
+    .field input:focus, .field textarea:focus { outline:none; border-color:var(--maroon); box-shadow:0 0 0 3px rgba(128,0,0,.10); }
+    .field textarea { min-height:90px; resize:vertical; }
+    .field small { color:#888; font-size:12px; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media (max-width:560px){ .grid2 { grid-template-columns:1fr; } }
+    .btn { padding:13px 28px; border:none; border-radius:10px; font-size:16px; font-weight:700; cursor:pointer; transition:transform .15s,box-shadow .2s,background .2s; }
+    .btn:disabled { opacity:.55; cursor:not-allowed; }
+    .btn-maroon { background:var(--maroon); color:#fff; }
+    .btn-maroon:hover:not(:disabled){ background:var(--maroon-dark); transform:translateY(-1px); }
+    .btn-green { background:var(--green); color:#fff; width:100%; font-size:18px; padding:16px; }
+    .btn-green:hover:not(:disabled){ background:#218838; transform:translateY(-1px); box-shadow:0 6px 18px rgba(40,167,69,.35); }
+    .imgfield { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+    .imgfield img { width:96px; height:72px; object-fit:cover; border-radius:8px; border:1px solid #ddd; background:#f3f3f3; }
+    .imgfield .btn { padding:10px 18px; font-size:14px; }
+    .imgfield input[type=file]{ display:none; }
+    .subhead { color:var(--maroon); font-size:15px; font-weight:700; margin:18px 0 10px; padding-top:14px; border-top:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center; }
+    .subhead:first-child { border-top:none; padding-top:0; }
+    .item-block { background:#fafafa; border:1px solid #eee; border-radius:10px; padding:14px 16px; margin-bottom:14px; }
+    .rm { background:#f8d7da; color:#721c24; border:none; border-radius:7px; padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer; }
+    .rm:hover { background:#f1b7bd; }
+    .add-btn { background:#e8f0fe; color:#084298; border:1px dashed #084298; border-radius:9px; padding:10px 16px; font-size:14px; font-weight:700; cursor:pointer; width:100%; }
+    .add-btn:hover { background:#d6e4fd; }
+    .help { font-size:14px; line-height:1.7; color:#444; }
+    .help ol { margin:8px 0 0 18px; } .help li { margin-bottom:6px; }
+    .toast { position:fixed; left:50%; bottom:26px; transform:translateX(-50%); padding:14px 22px; border-radius:10px; font-weight:600; box-shadow:0 8px 28px rgba(0,0,0,.25); display:none; z-index:100; max-width:90vw; }
+    .toast.ok { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+    .toast.err { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+    .toast.info { background:#cce5ff; color:#084298; border:1px solid #b6d4fe; }
+    .hidden { display:none; }
+    .login-box { max-width:420px; margin:8vh auto 0; }
+    .publish-bar { position:sticky; bottom:0; background:rgba(22,33,62,.96); backdrop-filter:blur(6px); padding:16px 20px; border-radius:14px 14px 0 0; margin:0 -20px; }
+    .spin { display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.5); border-top-color:#fff; border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px; margin-right:6px; }
+    @keyframes sp { to { transform:rotate(360deg); } }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .linkbtn { background:none; border:none; color:#fff; opacity:.85; text-decoration:underline; cursor:pointer; font-size:13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- ====== GİRİŞ EKRANI ====== -->
+    <div id="loginScreen">
+      <div class="card login-box">
+        <h2>🔒 Site Yönetimi — Giriş</h2>
+        <div class="field">
+          <label for="loginUser">Kullanıcı adı</label>
+          <input id="loginUser" type="text" autocomplete="username" />
+        </div>
+        <div class="field">
+          <label for="loginPass">Şifre</label>
+          <input id="loginPass" type="password" autocomplete="current-password" />
+        </div>
+        <button class="btn btn-maroon" id="loginBtn" style="width:100%">Giriş Yap</button>
+        <div id="apiSetup" class="hidden" style="margin-top:18px">
+          <div class="field">
+            <label for="apiBase">Sunucu adresi (tek seferlik kurulum)</label>
+            <input id="apiBase" type="text" placeholder="https://ecrn-cms-api.vercel.app" />
+            <small>Bu adresi geliştirici bir kez girer; müşteri girmez.</small>
+          </div>
+          <button class="btn btn-maroon" id="saveApiBtn" style="width:100%">Adresi Kaydet</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== EDİTÖR ====== -->
+    <div id="editorScreen" class="hidden">
+      <div class="header topbar">
+        <div>
+          <h1>🏗️ ECRN bvba — Site Yönetimi</h1>
+          <p>Aşağıdaki bilgileri değiştirip <b>Yayınla</b>'ya basın. Birkaç saniye içinde site güncellenir.</p>
+        </div>
+        <button class="linkbtn" id="logoutBtn">Çıkış</button>
+      </div>
+
+      <!-- YARDIM -->
+      <div class="card">
+        <h2 style="cursor:pointer" id="helpToggle">❓ Nasıl kullanılır? <span style="font-size:13px;color:#888;font-weight:400">(aç/kapa)</span></h2>
+        <div id="helpBody" class="help hidden">
+          <ol>
+            <li>İstediğin kutudaki yazıyı değiştir veya <b>Foto Değiştir</b> ile yeni fotoğraf yükle (en fazla 3 MB).</li>
+            <li>Liste bölümlerinde <b>+ Ekle</b> ile yeni hizmet/sayı/madde ekleyebilir, <b>Sil</b> ile kaldırabilirsin.</li>
+            <li>Bittiğinde en alttaki yeşil <b>🚀 Yayınla</b> düğmesine bas. Site birkaç saniye içinde güncellenir.</li>
+            <li>Bir hata yaptıysan, eski değeri tekrar yazıp yeniden Yayınla'ya basman yeterli.</li>
+          </ol>
+          <button type="button" class="btn btn-maroon" id="printGuide" style="margin-top:14px;font-size:14px;padding:9px 16px">🖨️ Kılavuzu Yazdır</button>
+        </div>
+      </div>
+
+      <!-- İLETİŞİM -->
+      <div class="card">
+        <h2>📞 İletişim Bilgileri</h2>
+        <div class="grid2">
+          <div class="field"><label>Telefon</label><input id="c_phone" type="text" /></div>
+          <div class="field"><label>WhatsApp numarası <small>(sadece rakam, örn. 32489155316)</small></label><input id="c_whatsapp" type="text" /></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>E-posta</label><input id="c_email" type="text" /></div>
+          <div class="field"><label>Firma sahibi / yetkili</label><input id="c_owner" type="text" /></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Adres — 1. satır</label><input id="c_addr1" type="text" /></div>
+          <div class="field"><label>Adres — 2. satır</label><input id="c_addr2" type="text" /></div>
+        </div>
+        <div class="field"><label>Logo</label><div class="imgfield" data-img="company.logo"></div></div>
+      </div>
+
+      <!-- SOSYAL MEDYA -->
+      <div class="card">
+        <h2>🔗 Sosyal Medya</h2>
+        <p style="color:#888;font-size:13px;margin:-8px 0 14px">Linki girersen sitede o ikon görünür ve tıklayınca oraya gider. Boş bırakırsan ikon gizlenir.</p>
+        <div class="field"><label>Facebook adresi</label><input id="s_facebook" type="text" placeholder="https://facebook.com/..."></div>
+        <div class="field"><label>Instagram adresi</label><input id="s_instagram" type="text" placeholder="https://instagram.com/..."></div>
+        <div class="field"><label>LinkedIn adresi</label><input id="s_linkedin" type="text" placeholder="https://linkedin.com/..."></div>
+      </div>
+
+      <!-- ANA SAYFA ÜST (HERO) -->
+      <div class="card">
+        <h2>🎯 Ana Sayfa — Üst Bölüm</h2>
+        <div class="field"><label>Üst rozet yazısı</label><input id="h_badge" type="text" /></div>
+        <div class="grid2">
+          <div class="field"><label>Büyük başlık — 1. satır</label><input id="h_title1" type="text" /></div>
+          <div class="field"><label>Büyük başlık — 2. satır</label><input id="h_title2" type="text" /></div>
+        </div>
+        <div class="field"><label>Alt açıklama</label><textarea id="h_subtitle"></textarea></div>
+        <div class="field"><label>Arka plan fotoğrafı</label><div class="imgfield" data-img="hero.bgImage"></div></div>
+      </div>
+
+      <!-- HİZMETLER -->
+      <div class="card">
+        <h2>🛠️ Hizmetler</h2>
+        <div class="field"><label>Hizmetler giriş metni</label><textarea id="sv_intro"></textarea></div>
+        <div id="servicesWrap"></div>
+        <button type="button" class="add-btn" id="addServiceBtn">+ Hizmet Ekle</button>
+      </div>
+
+      <!-- İSTATİSTİKLER -->
+      <div class="card">
+        <h2>📊 Sayılar (İstatistik)</h2>
+        <div id="statsWrap"></div>
+        <button type="button" class="add-btn" id="addStatBtn">+ Sayı Ekle</button>
+      </div>
+
+      <!-- FLUVIUS STANDARTLARI -->
+      <div class="card">
+        <h2>✅ Fluvius Standartları</h2>
+        <div class="field"><label>Açıklama metni</label><textarea id="std_intro"></textarea></div>
+        <div class="field"><label>Fotoğraf</label><div class="imgfield" data-img="standards.image"></div></div>
+        <div class="subhead">Maddeler</div>
+        <div id="stdItemsWrap"></div>
+        <button type="button" class="add-btn" id="addItemBtn">+ Madde Ekle</button>
+      </div>
+
+      <!-- HARİTA -->
+      <div class="card">
+        <h2>📍 Harita Konumu</h2>
+        <div class="field">
+          <label>Adres (haritada gösterilecek)</label>
+          <input id="map_query" type="text" placeholder="Lindestraat 43, 9160 Lokeren, België">
+          <small>Adresi yazman yeterli; harita otomatik o noktayı gösterir. Adres değişirse burayı güncelle.</small>
+        </div>
+      </div>
+
+      <!-- MENÜ & BUTONLAR -->
+      <div class="card">
+        <h2>🧭 Menü ve Buton Yazıları</h2>
+        <div class="subhead">Üst menü</div>
+        <div class="grid2">
+          <div class="field"><label>Menü: Anasayfa</label><input id="nav_home" type="text"></div>
+          <div class="field"><label>Menü: Hizmetler</label><input id="nav_services" type="text"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Menü: Standartlar</label><input id="nav_standards" type="text"></div>
+          <div class="field"><label>Menü: İletişim</label><input id="nav_contact" type="text"></div>
+        </div>
+        <div class="field"><label>Sağ üst buton ("Teklif Al")</label><input id="nav_cta" type="text"></div>
+        <div class="subhead">Ana sayfa butonları</div>
+        <div class="grid2">
+          <div class="field"><label>1. buton</label><input id="hero_primaryBtn" type="text"></div>
+          <div class="field"><label>2. buton</label><input id="hero_secondaryBtn" type="text"></div>
+        </div>
+      </div>
+
+      <!-- SEO -->
+      <div class="card">
+        <h2>🔎 Google'da Görünüm (SEO)</h2>
+        <p style="color:#888;font-size:13px;margin:-8px 0 14px">Google arama sonuçlarında ve tarayıcı sekmesinde görünen başlık/açıklama.</p>
+        <div class="field"><label>Sayfa başlığı</label><input id="seo_title" type="text"></div>
+        <div class="field"><label>Açıklama (1-2 cümle)</label><textarea id="seo_description"></textarea></div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="card">
+        <h2>📄 Alt Bilgi (Footer)</h2>
+        <div class="field"><label>Telif metni</label><input id="f_copy" type="text" /></div>
+        <div class="field"><label>Slogan</label><input id="f_tag" type="text" /></div>
+      </div>
+
+      <!-- YAYINLA -->
+      <div class="publish-bar">
+        <button class="btn btn-green" id="publishBtn">🚀 Yayınla</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // ====== KURULUM ======
+    // Geliştirici Vercel fonksiyonunu deploy ettikten sonra bu adresi bir kez ayarlar.
+    // Boş bırakılabilir: giriş ekranında "Sunucu adresi" alanından da girilebilir (localStorage'a yazılır).
+    const API_BASE_DEFAULT = "";
+    const getApiBase = () => (localStorage.getItem('ecrn_api_base') || API_BASE_DEFAULT).replace(/\/$/, '');
+
+    let TOKEN = null;
+    let imageValues = {}; // { "company.logo": "https://..." | "images/x.jpg" }
+
+    const $ = (id) => document.getElementById(id);
+    const toast = (msg, type='info', ms=3500) => {
+      const t = $('toast'); t.textContent = msg; t.className = 'toast ' + type; t.style.display = 'block';
+      clearTimeout(toast._t); toast._t = setTimeout(() => t.style.display = 'none', ms);
+    };
+
+    // ====== GİRİŞ ======
+    function initLoginScreen() {
+      if (!getApiBase()) $('apiSetup').classList.remove('hidden');
+      $('saveApiBtn').onclick = () => {
+        const v = $('apiBase').value.trim();
+        if (!v) return toast('Lütfen sunucu adresini girin.', 'err');
+        localStorage.setItem('ecrn_api_base', v.replace(/\/$/, ''));
+        $('apiSetup').classList.add('hidden');
+        toast('Sunucu adresi kaydedildi.', 'ok');
+      };
+      $('loginBtn').onclick = doLogin;
+      $('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+      $('logoutBtn').onclick = () => { TOKEN = null; $('editorScreen').classList.add('hidden'); $('loginScreen').classList.remove('hidden'); };
+    }
+
+    async function doLogin() {
+      const base = getApiBase();
+      if (!base) { $('apiSetup').classList.remove('hidden'); return toast('Önce sunucu adresini girin.', 'err'); }
+      const user = $('loginUser').value.trim();
+      const password = $('loginPass').value;
+      if (!user || !password) return toast('Kullanıcı adı ve şifre gerekli.', 'err');
+      $('loginBtn').disabled = true; $('loginBtn').innerHTML = '<span class="spin"></span>Giriş yapılıyor...';
+      try {
+        const r = await fetch(base + '/api/login', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ user, password })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok || !data.token) throw new Error(data.error || 'Giriş başarısız.');
+        TOKEN = data.token;
+        await loadContent();
+        $('loginScreen').classList.add('hidden');
+        $('editorScreen').classList.remove('hidden');
+        window.scrollTo(0,0);
+      } catch (e) {
+        toast(e.message || 'Giriş başarısız. Şifreyi kontrol edin.', 'err', 5000);
+      } finally {
+        $('loginBtn').disabled = false; $('loginBtn').textContent = 'Giriş Yap';
+      }
+    }
+
+    // ====== İÇERİĞİ YÜKLE ======
+    async function loadContent() {
+      // Panel siteyle aynı kökte (/admin/) olduğu için content.json'ı göreli çekeriz.
+      const r = await fetch('../content.json?t=' + Date.now());
+      const c = await r.json();
+      fillForm(c);
+    }
+
+    function makeImageField(container, key, value) {
+      imageValues[key] = value || '';
+      container.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = resolvePreview(value);
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-maroon'; btn.textContent = 'Foto Değiştir';
+      const file = document.createElement('input'); file.type = 'file'; file.accept = 'image/*';
+      const hint = document.createElement('small'); hint.textContent = 'JPG/PNG, en fazla 3 MB';
+      hint.style.cssText = 'flex-basis:100%;color:#888';
+      btn.onclick = () => file.click();
+      file.onchange = () => uploadImage(file.files[0], key, img, btn);
+      container.append(img, btn, file, hint);
+    }
+    const resolvePreview = (v) => !v ? '' : /^https?:\/\//.test(v) ? v : ('../' + v.replace(/^\//,''));
+
+    // ====== İKON SEÇENEKLERİ (hizmet kartları) ======
+    const ICON_OPTIONS = [
+      ['Zap','Şimşek / Elektrik'],['Construction','İnşaat / Kazı'],['CheckCircle2','Onay ✓'],
+      ['HardHat','Baret / İş güvenliği'],['ShieldCheck','Kalkan / Güvence'],['FileCheck','Belge / Sertifika'],
+      ['Award','Ödül / Kalite'],['Truck','Kamyon / Nakliye'],['Wrench','Anahtar / Tamir'],['Hammer','Çekiç / Montaj']
+    ].map(function(o){return '<option value="'+o[0]+'">'+o[1]+'</option>';}).join('');
+
+    // ====== DİNAMİK LİSTELER (ekle / sil) ======
+    function scrapeServices(){
+      const n=+($('servicesWrap').dataset.count||0), a=[];
+      for(let i=0;i<n;i++) a.push({title:$('svc'+i+'_title').value,desc:$('svc'+i+'_desc').value,icon:$('svc'+i+'_icon').value,img:imageValues['services.'+i+'.img']||''});
+      return a;
+    }
+    function renderServices(arr){
+      const sw=$('servicesWrap'); sw.innerHTML='';
+      arr.forEach((s,i)=>{
+        const d=document.createElement('div'); d.className='item-block';
+        d.innerHTML=
+          '<div class="subhead" style="margin-top:0;padding-top:0;border-top:none">'+(i+1)+'. Hizmet <button type="button" class="rm">Sil</button></div>'+
+          '<div class="field"><label>Başlık</label><input id="svc'+i+'_title" type="text"></div>'+
+          '<div class="field"><label>Açıklama</label><textarea id="svc'+i+'_desc"></textarea></div>'+
+          '<div class="field"><label>İkon</label><select id="svc'+i+'_icon">'+ICON_OPTIONS+'</select></div>'+
+          '<div class="field"><label>Fotoğraf</label><div class="imgfield" data-img="services.'+i+'.img"></div></div>';
+        sw.append(d);
+        $('svc'+i+'_title').value=s.title||''; $('svc'+i+'_desc').value=s.desc||''; $('svc'+i+'_icon').value=s.icon||'Zap';
+        makeImageField(d.querySelector('[data-img="services.'+i+'.img"]'),'services.'+i+'.img',s.img);
+        d.querySelector('.rm').onclick=()=>{const a=scrapeServices();a.splice(i,1);renderServices(a);};
+      });
+      sw.dataset.count=arr.length;
+    }
+    function scrapeStats(){
+      const n=+($('statsWrap').dataset.count||0), a=[];
+      for(let i=0;i<n;i++){const v=parseInt($('st'+i+'_value').value,10);a.push({value:isNaN(v)?0:v,suffix:$('st'+i+'_suffix').value,label:$('st'+i+'_label').value});}
+      return a;
+    }
+    function renderStats(arr){
+      const stw=$('statsWrap'); stw.innerHTML='';
+      arr.forEach((s,i)=>{
+        const d=document.createElement('div'); d.className='item-block';
+        d.innerHTML=
+          '<div class="subhead" style="margin-top:0;padding-top:0;border-top:none">'+(i+1)+'. Sayı <button type="button" class="rm">Sil</button></div>'+
+          '<div class="grid2"><div class="field"><label>Değer</label><input id="st'+i+'_value" type="number"></div>'+
+          '<div class="field"><label>İşaret (+, % vb.)</label><input id="st'+i+'_suffix" type="text" placeholder="+"></div></div>'+
+          '<div class="field"><label>Etiket</label><input id="st'+i+'_label" type="text" placeholder="Yıllık Deneyim"></div>';
+        stw.append(d);
+        $('st'+i+'_value').value=s.value; $('st'+i+'_suffix').value=s.suffix||''; $('st'+i+'_label').value=s.label||'';
+        d.querySelector('.rm').onclick=()=>{const a=scrapeStats();a.splice(i,1);renderStats(a);};
+      });
+      stw.dataset.count=arr.length;
+    }
+    function scrapeItems(){
+      const n=+($('stdItemsWrap').dataset.count||0), a=[];
+      for(let i=0;i<n;i++) a.push($('std_item'+i).value);
+      return a;
+    }
+    function renderItems(arr){
+      const iw=$('stdItemsWrap'); iw.innerHTML='';
+      arr.forEach((it,i)=>{
+        const d=document.createElement('div'); d.className='field'; d.style.cssText='display:flex;gap:8px;align-items:center';
+        d.innerHTML='<input id="std_item'+i+'" type="text" style="flex:1"><button type="button" class="rm">Sil</button>';
+        iw.append(d); $('std_item'+i).value=it||'';
+        d.querySelector('.rm').onclick=()=>{const a=scrapeItems();a.splice(i,1);renderItems(a);};
+      });
+      iw.dataset.count=arr.length;
+    }
+
+    function fillForm(c) {
+      const co=c.company||{}, h=c.hero||{}, st=c.standards||{}, f=c.footer||{}, so=c.social||{}, nv=c.nav||{}, se=c.seo||{}, mp=c.map||{};
+      $('s_facebook').value=so.facebook||''; $('s_instagram').value=so.instagram||''; $('s_linkedin').value=so.linkedin||'';
+      $('c_phone').value=co.phone||''; $('c_whatsapp').value=co.whatsapp||'';
+      $('c_email').value=co.email||''; $('c_owner').value=co.owner||'';
+      $('c_addr1').value=co.addressLine1||''; $('c_addr2').value=co.addressLine2||'';
+      $('h_badge').value=h.badge||''; $('h_title1').value=h.titleLine1||''; $('h_title2').value=h.titleLine2||'';
+      $('h_subtitle').value=h.subtitle||'';
+      $('hero_primaryBtn').value=h.primaryBtn||''; $('hero_secondaryBtn').value=h.secondaryBtn||'';
+      $('sv_intro').value=c.servicesIntro||'';
+      $('std_intro').value=st.intro||'';
+      $('f_copy').value=f.copyright||''; $('f_tag').value=f.tagline||'';
+      $('nav_home').value=nv.home||''; $('nav_services').value=nv.services||''; $('nav_standards').value=nv.standards||'';
+      $('nav_contact').value=nv.contact||''; $('nav_cta').value=nv.cta||'';
+      $('seo_title').value=se.title||''; $('seo_description').value=se.description||'';
+      $('map_query').value=mp.query||'';
+
+      makeImageField(document.querySelector('[data-img="company.logo"]'),'company.logo',co.logo);
+      makeImageField(document.querySelector('[data-img="hero.bgImage"]'),'hero.bgImage',h.bgImage);
+      makeImageField(document.querySelector('[data-img="standards.image"]'),'standards.image',st.image);
+
+      renderServices(c.services||[]);
+      renderStats(c.stats||[]);
+      renderItems(st.items||[]);
+    }
+
+    // ====== FOTO YÜKLEME ======
+    function uploadImage(file, key, imgEl, btnEl) {
+      if (!file) return;
+      if (file.size > 3*1024*1024) return toast('Fotoğraf 3 MB\'tan küçük olmalı. (Daha küçük/optimize bir görsel kullanın.)', 'err');
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const dataBase64 = reader.result.split(',')[1];
+        const ext = (file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
+        const safeKey = key.replace(/[^a-z0-9]/gi,'_');
+        const filename = 'images/' + safeKey + '_' + fileStamp() + '.' + ext;
+        btnEl.disabled = true; const old = btnEl.textContent; btnEl.innerHTML = '<span class="spin"></span>Yükleniyor...';
+        try {
+          const r = await fetch(getApiBase() + '/api/upload', {
+            method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+            body: JSON.stringify({ filename, dataBase64 })
+          });
+          const data = await r.json().catch(()=>({}));
+          if (!r.ok || !data.path) throw new Error(data.error||'Yükleme başarısız.');
+          imageValues[key] = data.path;
+          imgEl.src = URL.createObjectURL(file);
+          toast('Fotoğraf yüklendi. Yayınla\'ya basınca site güncellenir.', 'ok');
+        } catch (e) { toast(e.message, 'err', 5000); }
+        finally { btnEl.disabled = false; btnEl.textContent = old; }
+      };
+      reader.readAsDataURL(file);
+    }
+    // Date.now yerine basit zaman damgası (çakışmayı önler)
+    function fileStamp(){ return Math.floor(performance.now()) + '' + Math.floor(performance.timeOrigin); }
+
+    // ====== TOPLA + YAYINLA ======
+    function collectContent() {
+      return {
+        company: {
+          name: 'ECRN bvba',
+          owner: $('c_owner').value.trim(),
+          phone: $('c_phone').value.trim(),
+          whatsapp: $('c_whatsapp').value.replace(/\D/g,''),
+          email: $('c_email').value.trim(),
+          addressLine1: $('c_addr1').value.trim(),
+          addressLine2: $('c_addr2').value.trim(),
+          logo: imageValues['company.logo'] || ''
+        },
+        social: {
+          facebook: $('s_facebook').value.trim(),
+          instagram: $('s_instagram').value.trim(),
+          linkedin: $('s_linkedin').value.trim()
+        },
+        seo: { title: $('seo_title').value.trim(), description: $('seo_description').value.trim() },
+        nav: {
+          home: $('nav_home').value.trim(), services: $('nav_services').value.trim(),
+          standards: $('nav_standards').value.trim(), contact: $('nav_contact').value.trim(),
+          cta: $('nav_cta').value.trim()
+        },
+        hero: {
+          badge: $('h_badge').value.trim(),
+          titleLine1: $('h_title1').value.trim(),
+          titleLine2: $('h_title2').value.trim(),
+          subtitle: $('h_subtitle').value.trim(),
+          bgImage: imageValues['hero.bgImage'] || '',
+          primaryBtn: $('hero_primaryBtn').value.trim(),
+          secondaryBtn: $('hero_secondaryBtn').value.trim()
+        },
+        map: { query: $('map_query').value.trim() },
+        stats: scrapeStats(),
+        servicesIntro: $('sv_intro').value.trim(),
+        services: scrapeServices().map(s => ({ title:s.title.trim(), desc:s.desc.trim(), icon:s.icon, img:s.img })),
+        standards: {
+          intro: $('std_intro').value.trim(),
+          image: imageValues['standards.image'] || '',
+          items: scrapeItems().map(x => x.trim()).filter(x => x)
+        },
+        footer: { copyright: $('f_copy').value.trim(), tagline: $('f_tag').value.trim() }
+      };
+    }
+
+    async function publish() {
+      const btn = $('publishBtn'); btn.disabled = true; const old = btn.textContent;
+      btn.innerHTML = '<span class="spin"></span>Yayınlanıyor...';
+      try {
+        const content = collectContent();
+        const r = await fetch(getApiBase() + '/api/save', {
+          method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+          body: JSON.stringify({ content })
+        });
+        const data = await r.json().catch(()=>({}));
+        if (!r.ok) throw new Error(data.error || 'Yayınlama başarısız.');
+        toast('✅ Yayınlandı! Site birkaç saniye içinde güncellenecek.', 'ok', 6000);
+      } catch (e) { toast(e.message, 'err', 6000); }
+      finally { btn.disabled = false; btn.textContent = old; }
+    }
+
+    function printGuide(){
+      const w = window.open('', '_blank');
+      if (!w) return toast('Yazdırma penceresi engellendi.', 'err');
+      w.document.write('<html><head><title>ECRN Site Yönetimi — Kılavuz</title><meta charset="utf-8"></head>'+
+        '<body style="font-family:sans-serif;padding:30px;max-width:620px;line-height:1.7;color:#222">'+
+        '<h2>ECRN bvba — Site Yönetimi Kılavuzu</h2>'+
+        '<p><b>Adres:</b> ecrn.be/admin</p>'+
+        '<p><b>Kullanıcı:</b> ____________________ &nbsp;&nbsp; <b>Şifre:</b> ____________________</p>'+
+        '<ol>'+
+        '<li>Yukarıdaki adrese git, kullanıcı adı ve şifre ile giriş yap.</li>'+
+        '<li>Değiştirmek istediğin kutudaki yazıyı düzenle veya "Foto Değiştir" ile yeni fotoğraf yükle (en fazla 3 MB).</li>'+
+        '<li>Hizmet / sayı / madde eklemek için "+ Ekle", kaldırmak için "Sil".</li>'+
+        '<li>Sosyal medya: Instagram/Facebook/LinkedIn adresini gir; boş bırakırsan ikon gizlenir.</li>'+
+        '<li>Adres değişirse "Harita Konumu" kutusuna yeni adresi yaz.</li>'+
+        '<li>Bittiğinde en alttaki yeşil "Yayınla" düğmesine bas. Site birkaç saniye içinde güncellenir.</li>'+
+        '<li>Yanlış yaptıysan eski değeri tekrar yazıp yeniden Yayınla.</li>'+
+        '</ol></body></html>');
+      w.document.close(); w.focus(); w.print();
+    }
+
+    // ====== BAŞLAT ======
+    initLoginScreen();
+    $('publishBtn').onclick = publish;
+    $('addServiceBtn').onclick = () => { const a=scrapeServices(); a.push({title:'',desc:'',icon:'Zap',img:''}); renderServices(a); };
+    $('addStatBtn').onclick = () => { const a=scrapeStats(); a.push({value:0,suffix:'',label:''}); renderStats(a); };
+    $('addItemBtn').onclick = () => { const a=scrapeItems(); a.push(''); renderItems(a); };
+    $('helpToggle').onclick = () => $('helpBody').classList.toggle('hidden');
+    $('printGuide').onclick = printGuide;
+  </script>
+</body>
+</html>
