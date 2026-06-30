@@ -229,7 +229,7 @@
     // ====== KURULUM ======
     // Geliştirici Vercel fonksiyonunu deploy ettikten sonra bu adresi bir kez ayarlar.
     // Boş bırakılabilir: giriş ekranında "Sunucu adresi" alanından da girilebilir (localStorage'a yazılır).
-    const API_BASE_DEFAULT = "";
+    const API_BASE_DEFAULT = "https://ecrn-cms-api.vercel.app";
     const getApiBase = () => (localStorage.getItem('ecrn_api_base') || API_BASE_DEFAULT).replace(/\/$/, '');
 
     let TOKEN = null;

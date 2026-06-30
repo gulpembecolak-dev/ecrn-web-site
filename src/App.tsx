@@ -213,7 +213,7 @@ const resolveImg = (src: string) =>
 
 // İletişim formu için arka uç adresi (panel ile aynı Vercel projesi).
 // Geliştirici deploy sonrası buraya Vercel adresini yazar, örn. "https://ecrn-cms-api.vercel.app".
-const CONTACT_API: string = '';
+const CONTACT_API: string = 'https://ecrn-cms-api.vercel.app';
 
 /* ============================================
    MAIN APP
