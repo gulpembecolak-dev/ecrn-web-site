@@ -316,15 +316,12 @@ function App() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           {/* Logo */}
           <a href="#home" className="flex items-center gap-3 group">
-            <div className="relative">
-              <img
-                src={resolveImg(company.logo)}
-                alt="ECRN Logo"
-                className="h-14 md:h-16 w-auto object-contain transition-transform group-hover:scale-105"
-                style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.45))' }}
-              />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent-cyan rounded-full animate-pulse"></div>
-            </div>
+            <img
+              src={resolveImg(company.logo)}
+              alt="ECRN Logo"
+              className="h-14 md:h-16 w-auto object-contain transition-transform group-hover:scale-105"
+              style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.45))' }}
+            />
             <div>
               <span className="text-2xl font-black font-display text-white tracking-tight">ECRN</span>
               <span className="text-[10px] text-primary font-bold ml-1">bvba</span>
